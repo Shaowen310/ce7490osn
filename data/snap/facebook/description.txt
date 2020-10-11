@@ -1,0 +1,2 @@
+facebook_data	10 networks, anonymized
+facebook_combined	Edges from all egonets combined
