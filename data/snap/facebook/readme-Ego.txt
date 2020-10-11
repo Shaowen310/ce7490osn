@@ -9,3 +9,11 @@ nodeId.feat : The features for each of the nodes that appears in the edge file.
 nodeId.egofeat : The features for the ego user.
 
 nodeId.featnames : The names of each of the feature dimensions. Features are '1' if the user has this property in their profile, and '0' otherwise. This file has been anonymized for facebook users, since the names of the features would reveal private data.
+
+Stats:
+
+http://networkrepository.com/ego-facebook.php
+
+Notes:
+
+Ego Networks: http://www.analytictech.com/networks/egonet.htm
