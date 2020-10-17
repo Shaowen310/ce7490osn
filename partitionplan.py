@@ -2,18 +2,18 @@ import numpy as np
 
 
 class PartitionPlan:
-    def __init__(self, capacity):
+    def __init__(self, n_partitions):
         self.uid2us = {}
-        self.pid2ps = {i:i for i in range(capacity)}
+        self.pid2ps = {i:i for i in range(n_partitions)}
         # user's storage position to user id
         self.us2uid = np.empty((0), dtype=np.int64)
         # partition's storage position to partition id
-        self.ps2pid = np.arange(capacity, dtype=np.int64)
+        self.ps2pid = np.arange(n_partitions, dtype=np.int64)
         # user primary partition assignment matrix
-        self.user2primary = np.empty((0, capacity), dtype=np.bool)
+        self.user2primary = np.empty((0, n_partitions), dtype=np.bool)
         # user replica partition assignment matrix
-        self.user2replica = np.empty((0, capacity), dtype=np.bool)
-        self.capacity = capacity
+        self.user2replica = np.empty((0, n_partitions), dtype=np.bool)
+        self.capacity = n_partitions
 
     def partition_least_masters(self):
         master_count = np.sum(self.user2primary, axis=0)
