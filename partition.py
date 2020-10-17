@@ -1,23 +1,16 @@
-from node import Node
-
-
 class Partition:
     def __init__(self):
-        self.nodes = []
+        self.master_nodes = []
+        self.slave_nodes = []
 
     def __len__(self):
-        return len(self.nodes)
+        return len(self.master_nodes) + len(self.slave_nodes)
 
     def num_masters(self):
-        count = 0
-        for n in self.nodes:
-            if n.master:
-                count += 1
-
-        return count
+        return len(self.master_nodes)
 
     def add_master(self, user):
-        self.nodes.append(Node(user, True))
+        self.master_nodes.append(user)
 
     def add_slave(self, user):
-        self.nodes.append(Node(user, False))
+        self.slave_nodes.append(user)
