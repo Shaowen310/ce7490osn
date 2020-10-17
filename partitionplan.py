@@ -1,37 +1,45 @@
-from partition import Partition
+import numpy as np
+
 
 class PartitionPlan:
-    def __init__(self):
-        # make sure the array is dense all the time
-        # partition creation or removal requires restructure
-        self.partitions = []
-
     def __init__(self, capacity):
-        self.partitions = [Partition for i in range(capacity)]
+        self.uid2us = {}
+        self.pid2ps = {i:i for i in range(capacity)}
+        # user's storage position to user id
+        self.us2uid = np.empty((0), dtype=np.int64)
+        # partition's storage position to partition id
+        self.ps2pid = np.arange(capacity, dtype=np.int64)
+        # user primary partition assignment matrix
+        self.user2primary = np.empty((0, capacity), dtype=np.bool)
+        # user replica partition assignment matrix
+        self.user2replica = np.empty((0, capacity), dtype=np.bool)
+        self.capacity = capacity
 
     def partition_least_masters(self):
-        if len(self.partitions) == 0:
-            return None
+        master_count = np.sum(self.user2primary, axis=0)
+        master_count[self.ps2pid == -1] = np.nan
+        return self.ps2pid[np.nanargmin(master_count)]
 
-        least_masters = 0
-        p_id_least_masters = 0
-        
-        for pid, p in enumerate(self.partitions):
-            num_masters = p.num_masters()
-            if num_masters > least_masters:
-                least_masters = num_masters
-                p_id_least_masters = pid
+    def contains_user(self, user_id):
+        return user_id in self.uid2us
 
-        return p_id_least_masters
+    def contains_partition(self, partition_id):
+        return partition_id in self.pid2ps
 
-    def get_partition(self, partition_id):
-        return self.partitions[partition_id]
+    def _expand_user_capacity(self):
 
-    def partition_add_master(self, partition_id, user):
-        self.partitions[partition_id].add_master(user)
+    def _expand_partition_capacity(self):
 
-    def partition_add_slave(self, partition_id, user):
-        self.partitions[partition_id].add_slave(user)
+    def partition_add_master(self, partition_id, user_id):
+        us = self.uid2us[user_id]
+        ps = self.pid2ps[partition_id]
+        self.user2primary[us, ps] = True
+
+    def partition_add_slave(self, partition_id, user_id):
+        us = self.uid2us[user_id]
+        ps = self.pid2ps[partition_id]
+        self.user2replica[us, ps] = True
 
     def partition_ids(self):
+
         return list(range(len(self.partitions)))
