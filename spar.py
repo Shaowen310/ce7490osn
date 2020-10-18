@@ -8,7 +8,7 @@ K = 2
 def add_node(pplan, user):
     pid_least_masters = pplan.partition_least_masters()
     pplan.partition_add_master(pid_least_masters, user)
-    pids = pplan.partition_ids_not_master(user)
+    pids = pplan.partition_ids_not_having_master(user)
     pids_slave = pids[np.random.choice(len(pids), K)]
     pplan.partition_add_slave(pids_slave, user)
 
@@ -59,7 +59,7 @@ def rm_edge(pplan, user1, user2, G):
         pplan.partition_remove_slave(user1_master_server, neighbor)  # remove all slave of user1 nrighbors from
         # user1 old master, and must not less than K
 
-    master_replicas = pplan.find_master_replica(user1_master_server)
+    master_replicas = pplan.find_master_in_partition(user1_master_server)
     for master in master_replicas:
         neighbors = G.find_neighbors(master)  # neighbors list
         for neighbor in neighbors:
@@ -117,13 +117,13 @@ def imbalance_ratio(pplan):
     servers = pplan.servers()
     master_num = []
     for server in servers:
-        tmp = pplan.find_master_replica(server)  # list
+        tmp = pplan.find_master_in_partition(server)  # list
         master_num.append(len(tmp))
     return 1.0 * max(master_num) / min(master_num)
 
 
 def remove_slave_replica(pplan, server, user, userdel, G):
-    master_replicas = pplan.find_master_replica(server)
+    master_replicas = pplan.find_master_in_partition(server)
     user_neighbors = G.find_neighbors(user)
 
     user_serives = np.intersect1d(master_replicas, user_neighbors)
