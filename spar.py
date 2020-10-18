@@ -44,13 +44,26 @@ def add_edge(pplan, user1, user2, G):
     return pplan
 
 
+def add_server_1(pplan):
+    current_server_num = pplan.servers_num()
+    user_num = pplan.user_num()
+
+    avg_num = 1.0*user_num/(current_server_num+1)
+
+    servers = pplan.partition_ids()
+
+    for server in servers:
+        pplan.find_master_in_partition(server)
+
+
 def rm_node(pplan, user, G):
     user_neighbors = G.find_neighbors(user)  # neighbors list
 
     for neighbor in user_neighbors:
         pplan = rm_edge(pplan, user, neighbor, G)
 
-    pplan.remove_user(user)
+    pplan.partition_remove_master(user)
+    pplan.partition_remove_slave_all(user)
 
     return None
 
@@ -107,14 +120,14 @@ def move_master(pplan, user1, user2, G):
 
 
 def evaluate(pplan):
-    user_num = pplan.num_users()
-    replica_num = pplan.num_replicas()
+    user_num = pplan.user_num()
+    replica_num = pplan.replica_num()
 
     return replica_num / user_num
 
 
 def imbalance_ratio(pplan):
-    servers = pplan.partition_ids()
+    servers = pplan.servers()
     master_num = []
     for server in servers:
         tmp = pplan.find_master_in_partition(server)  # list
@@ -123,12 +136,13 @@ def imbalance_ratio(pplan):
 
 
 def remove_slave_replica(pplan, server, user, userdel, G):
-    num_slave_replicas = pplan.num_slaves_by_user(user)
+    num_slave_replicas = pplan.find_slave_replica_num(user)
 
     if num_slave_replicas + 1 <= K:
         return False
 
     master_replicas = pplan.find_master_in_partition(server)
+
     user_neighbors = G.find_neighbors(user)
 
     user_serives = np.intersect1d(master_replicas, user_neighbors)
