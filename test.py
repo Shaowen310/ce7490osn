@@ -13,10 +13,10 @@ pp.partition_ids()
 # %%
 for i in range(len(action)):
     node1 = action[i]
-    node2 = action[i+1]
+    node2 = action[i + 1]
     if not pp.contains_user(node1):
         spar.add_node(pp, node1)
     if not pp.contains_user(node2):
-        spar.add_node(pp,node2)
-    spar.add_edge(pp,node1,node2)
+        spar.add_node(pp, node2)
+    spar.add_edge(pp, node1, node2)
     # %%
