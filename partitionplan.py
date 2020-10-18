@@ -18,9 +18,10 @@ class PartitionPlan:
         self.user2replica = np.zeros((self.ucap, self.pcap), dtype=np.bool)
 
     def partition_least_masters(self):
-        master_count = np.sum(self.user2primary, axis=0, dtype=np.int64)
-        master_count[~self.palloc] = np.iinfo(master_count.dtype).max
-        return np.argmin(master_count)
+        auser2aprimary = self.user2primary[np.ix_(self.ualloc, self.palloc)]
+        master_count = np.sum(auser2aprimary, axis=0, dtype=np.int64)
+        apidx = np.nonzero(self.palloc)[0]
+        return apidx[np.argmin(master_count)]
 
     def contains_user(self, user_id):
         return self.ualloc[user_id]
