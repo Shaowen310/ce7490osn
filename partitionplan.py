@@ -19,9 +19,12 @@ class PartitionPlan:
         # user partition assignment matrix, 0: none, 1: MASTER, 2: SLAVE
         self.u2p = np.full((self.ucap, self.pcap), self.NOALLOC, dtype=np.int8)
 
-    def partition_least_masters(self):
+    def num_masters_per_partition(self):
         au2app = self.u2p[np.ix_(self.ualloc, self.palloc)] == self.MASTER
-        master_count = np.sum(au2app, axis=0, dtype=np.int64)
+        return np.sum(au2app, axis=0, dtype=np.int64)
+
+    def partition_least_masters(self):
+        master_count = self.num_masters_per_partition()
         apidx = np.nonzero(self.palloc)[0]
         return apidx[np.argmin(master_count)]
 
@@ -48,7 +51,7 @@ class PartitionPlan:
         self.ualloc[user_id] = True
 
     def _remove_master(self, user_id):
-        self.u2p[user_id] = np.where(self.u2p == self.MASTER, self.NOALLOC, self.u2p)
+        self.u2p[user_id, np.flatnonzero(self.u2p[user_id] == self.MASTER)] = self.NOALLOC
 
     def _partition_remove_replica(self, partition_id, user_id):
         self.u2p[user_id, partition_id] = self.NOALLOC
@@ -63,16 +66,16 @@ class PartitionPlan:
         self.ualloc[user_id] = False
 
     def partition_ids(self):
-        return np.nonzero(self.palloc)[0]
+        return np.flatnonzero(self.palloc)
 
     def partition_ids_not_having_master(self, user_id):
-        return np.nonzero(self.palloc & (self.u2p[user_id] != self.MASTER))[0]
+        return np.flatnonzero(self.palloc & (self.u2p[user_id] != self.MASTER))
 
     def find_partition_having_master(self, user_id):
-        return np.nonzero(self.u2p[user_id] == self.MASTER)[0][0]
+        return np.flatnonzero(self.u2p[user_id] == self.MASTER)[0]
 
     def find_partition_having_slave(self, user_id):
-        return np.nonzero(self.u2p[user_id] == self.SLAVE)[0]
+        return np.flatnonzero(self.u2p[user_id] == self.SLAVE)
 
     def move_master_to_partition(self, to_partition_id, user_id):
         assert self.palloc[to_partition_id]
@@ -81,7 +84,7 @@ class PartitionPlan:
 
     def find_master_in_partition(self, partition_id):
         assert self.palloc[partition_id]
-        return np.nonzero(self.u2p[:, partition_id] == self.MASTER)[0]
+        return np.flatnonzero(self.u2p[:, partition_id] == self.MASTER)
 
     def num_slaves_by_user(self, user_id):
         return np.count_nonzero(self.u2p[user_id] == self.SLAVE)
