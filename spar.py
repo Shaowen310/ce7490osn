@@ -124,17 +124,13 @@ def imbalance_ratio(pplan):
 
 
 def remove_slave_replica(pplan, server, user, userdel, G):
-<<<<<<< HEAD
-
     num_slave_replicas = pplan.find_slave_replica_num(user)
 
     if num_slave_replicas + 1 <= K:
         return False
 
-    master_replicas = pplan.find_master_replica(server)
-=======
     master_replicas = pplan.find_master_in_partition(server)
->>>>>>> 5ae3c03dd886340c9678165a847111d11006e775
+
     user_neighbors = G.find_neighbors(user)
 
     user_serives = np.intersect1d(master_replicas, user_neighbors)
