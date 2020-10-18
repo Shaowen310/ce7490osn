@@ -44,26 +44,27 @@ def add_edge(pplan, user1, user2, G):
     return pplan
 
 
-def rm_node(pplan, user):
+def rm_node(pplan, user, G):
+    user_neighbors = G.find_neighbors(user)  # neighbors list
+
+    for neighbor in user_neighbors:
+        pplan = rm_edge(pplan, user, neighbor, G)
+
+    pplan.partition_rm_master(user)
+    pplan.partition_re_slave_all(user)
+
     return None
 
 
 def rm_edge(pplan, user1, user2, G):
     user1_master_server = pplan.find_master_server(user1)  # is a number
     user2_master_server = pplan.find_master_server(user2)
-    user1_slave_server = pplan.find_slave_server(user1)  # is a list
-    user2_slave_server = pplan.find_slave_server(user2)
-    user1_neighbors = G.find_neighbors(user1)  # neighbors list
 
-    for neighbor in user1_neighbors:
-        pplan.partition_remove_slave(user1_master_server, neighbor)  # remove all slave of user1 nrighbors from
-        # user1 old master, and must not less than K
+    if remove_slave_replica(pplan, user1_master_server, user2, user1, G):
+        pplan.partition_remove_slave(user1_master_server, user2)
 
-    master_replicas = pplan.find_master_replica(user1_master_server)
-    for master in master_replicas:
-        neighbors = G.find_neighbors(master)  # neighbors list
-        for neighbor in neighbors:
-            pplan.partition_add_slave(user1_master_server, neighbor)
+    if remove_slave_replica(pplan, user2_master_server, user1, user2, G):
+        pplan.partition_remove_slave(user2_master_server, user1)
 
     return pplan
 
