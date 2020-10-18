@@ -70,6 +70,22 @@ def add_server_1(pplan, new_server, G):
             for neighbor in neighbors:
                 if remove_slave_replica(pplan, servers[i], neighbor, masters[id], G):
                     pplan.partition_remove_slave(servers[i], neighbor)
+    return pplan
+
+
+def add_server_2(pplan):
+    # server list add 1
+    return pplan
+
+
+def rm_server(pplan, serverldel, G):
+    servers = pplan.partition_ids()
+    current_server_num = len(servers)
+    cap = current_server_num  # allow maximum imbalance
+
+    masters = pplan.find_master_in_partition(serverldel)
+
+    masters_conect =
 
 
 def rm_node(pplan, user, G):
@@ -81,7 +97,7 @@ def rm_node(pplan, user, G):
     pplan.partition_remove_master(user)
     pplan.partition_remove_slave_all(user)
 
-    return None
+    return pplan
 
 
 def rm_edge(pplan, user1, user2, G):
