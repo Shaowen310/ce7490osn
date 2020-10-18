@@ -50,8 +50,8 @@ def rm_node(pplan, user, G):
     for neighbor in user_neighbors:
         pplan = rm_edge(pplan, user, neighbor, G)
 
-    pplan.partition_rm_master(user)
-    pplan.partition_re_slave_all(user)
+    pplan.partition_remove_master(user)
+    pplan.partition_remove_slave_all(user)
 
     return None
 
@@ -92,7 +92,7 @@ def move_master(pplan, user1, user2, G):
     user1_master_server = pplan_tmp.find_partition_having_master(user1)  # is a number
     user2_master_server = pplan_tmp.find_partition_having_master(user2)
 
-    pplan_tmp.move_master(user2_master_server, user1)  # move user1 master to user2 master server
+    pplan_tmp.move_master_to_partition(user2_master_server, user1)  # move user1 master to user2 master server
     pplan_tmp.partition_add_slave(user1_master_server, user1)  # create user1 slave on user1 old mater
 
     user1_neighbors = G.find_neighbors(user1)  # neighbors list
@@ -124,6 +124,12 @@ def imbalance_ratio(pplan):
 
 
 def remove_slave_replica(pplan, server, user, userdel, G):
+
+    num_slave_replicas = pplan.find_slave_replica_num(user)
+
+    if num_slave_replicas + 1 <= K:
+        return False
+
     master_replicas = pplan.find_master_replica(server)
     user_neighbors = G.find_neighbors(user)
 
