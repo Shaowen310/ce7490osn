@@ -44,16 +44,32 @@ def add_edge(pplan, user1, user2, G):
     return pplan
 
 
-def add_server_1(pplan):
-    current_server_num = pplan.servers_num()
+def add_server_1(pplan, new_server, G):
+    servers = pplan.partition_ids()
+    current_server_num = len(servers)
     user_num = pplan.user_num()
 
-    avg_num = 1.0*user_num/(current_server_num+1)
+    avg_num = 1.0 * user_num / (current_server_num + 1)
 
-    servers = pplan.partition_ids()
+    total_processed = 0
+    for i in range(len(servers)):
+        masters = pplan.find_master_in_partition(servers[i])
+        masters_num = len(masters)
+        move_num = masters_num - round(avg_num) + round(avg_num * i - total_processed)
+        if i == len(servers) - 1:
+            move_num = user_num - total_processed
+        total_processed = total_processed + move_num
 
-    for server in servers:
-        pplan.find_master_in_partition(server)
+        move_ids = np.random.choice(len(masters), move_num)
+
+        for id in move_ids:
+            pplan.move_master_to_partition(new_server, masters[id])
+
+            neighbors = G.find_neighbors(masters[id])  # neighbors list
+
+            for neighbor in neighbors:
+                if remove_slave_replica(pplan, servers[i], neighbor, masters[id], G):
+                    pplan.partition_remove_slave(servers[i], neighbor)
 
 
 def rm_node(pplan, user, G):
@@ -113,7 +129,7 @@ def move_master(pplan, user1, user2, G):
         pplan_tmp.partition_add_slave(user2_master_server, neighbor)  # create new replica of user1 neighbors in new
         # master if it is not ready in.
 
-        if remove_slave_replica(pplan, user1_master_server, neighbor, user1, G):
+        if remove_slave_replica(pplan_tmp, user1_master_server, neighbor, user1, G):
             pplan_tmp.partition_remove_slave(user1_master_server, neighbor)
 
     return pplan_tmp
