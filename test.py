@@ -11,5 +11,12 @@ pp = PartitionPlan(10, 5000, 20)
 
 pp.partition_ids()
 # %%
-spar.add_node(pp, 1)
-# %%
+for i in range(len(action)):
+    node1 = action[i]
+    node2 = action[i+1]
+    if not pp.contains_user(node1):
+        spar.add_node(pp, node1)
+    if not pp.contains_user(node2):
+        spar.add_node(pp,node2)
+    spar.add_edge(pp,node1,node2)
+    # %%
