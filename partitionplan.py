@@ -2,6 +2,10 @@ import numpy as np
 
 
 class PartitionPlan:
+    NOALLOC = 0
+    PRIMARY = 1
+    REPLICA = 2
+
     def __init__(self, n_partitions, user_capacity, partition_capacity):
         # Assumption: user_id determines the user's storage location
         # partition_id determines the partition's storage location
@@ -12,14 +16,12 @@ class PartitionPlan:
         # partition storage allocation
         self.palloc = np.zeros((self.pcap), dtype=np.bool)
         self.palloc[:n_partitions] = True
-        # user primary partition assignment matrix
-        self.user2primary = np.zeros((self.ucap, self.pcap), dtype=np.bool)
-        # user replica partition assignment matrix
-        self.user2replica = np.zeros((self.ucap, self.pcap), dtype=np.bool)
+        # user partition assignment matrix, 0: none, 1: primary, 2: replica
+        self.u2p = np.full((self.ucap, self.pcap), self.NOALLOC, dtype=np.int8)
 
     def partition_least_masters(self):
-        auser2aprimary = self.user2primary[np.ix_(self.ualloc, self.palloc)]
-        master_count = np.sum(auser2aprimary, axis=0, dtype=np.int64)
+        au2app = self.u2p[np.ix_(self.ualloc, self.palloc)] == self.PRIMARY
+        master_count = np.sum(au2app, axis=0, dtype=np.int64)
         apidx = np.nonzero(self.palloc)[0]
         return apidx[np.argmin(master_count)]
 
@@ -38,12 +40,15 @@ class PartitionPlan:
     def partition_add_master(self, partition_id, user_id):
         self.ualloc[user_id] = True
         self.palloc[partition_id] = True
-        self.user2primary[user_id, partition_id] = True
+        self.u2p[user_id, partition_id] = self.PRIMARY
 
     def partition_add_slave(self, partition_ids, user_id):
         self.ualloc[user_id] = True
         self.palloc[partition_ids] = True
-        self.user2replica[user_id, partition_ids] = True
+        self.u2p[user_id, partition_ids] = self.REPLICA
 
     def partition_ids(self):
         return np.nonzero(self.palloc)[0]
+
+    def partition_ids_not_master(self, user_id):
+        return np.nonzero(self.palloc & (self.u2p[user_id] != self.PRIMARY))[0]
