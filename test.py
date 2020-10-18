@@ -12,7 +12,12 @@ pp = PartitionPlan(10, 5000, 20)
 pp.partition_ids()
 
 # %%
+pp = spar.add_node(pp, 0)
 pp = spar.add_node(pp, 1)
+
+# %%
+
+
 # %%
 # for i in range(len(action)):
 #     node1 = action[i]
