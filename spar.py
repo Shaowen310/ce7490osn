@@ -72,10 +72,10 @@ def rm_edge(pplan, user1, user2, G):
 def no_movement_of_master(pplan, user1, user2):
     pplan_tmp = copy.deepcopy(pplan)
 
-    user1_master_server = pplan_tmp.find_master_server(user1)  # is a number
-    user2_master_server = pplan_tmp.find_master_server(user2)
-    user1_slave_server = pplan_tmp.find_slave_server(user1)  # is a list
-    user2_slave_server = pplan_tmp.find_slave_server(user2)
+    user1_master_server = pplan_tmp.find_partition_having_master(user1)  # is a number
+    user2_master_server = pplan_tmp.find_partition_having_master(user2)
+    user1_slave_server = pplan_tmp.find_partition_having_slave(user1)  # is a list
+    user2_slave_server = pplan_tmp.find_partition_having_slave(user2)
 
     if user1_master_server not in user2_slave_server and user1_master_server != user2_master_server:
         pplan_tmp.partition_add_slave(user2_master_server, user1)
@@ -89,10 +89,10 @@ def no_movement_of_master(pplan, user1, user2):
 def move_master(pplan, user1, user2, G):
     pplan_tmp = copy.deepcopy(pplan)
 
-    user1_master_server = pplan_tmp.find_master_server(user1)  # is a number
-    user2_master_server = pplan_tmp.find_master_server(user2)
+    user1_master_server = pplan_tmp.find_partition_having_master(user1)  # is a number
+    user2_master_server = pplan_tmp.find_partition_having_master(user2)
 
-    pplan_tmp.move_master_server(user2_master_server, user1)  # move user1 master to user2 master server
+    pplan_tmp.move_master(user2_master_server, user1)  # move user1 master to user2 master server
     pplan_tmp.partition_add_slave(user1_master_server, user1)  # create user1 slave on user1 old mater
 
     user1_neighbors = G.find_neighbors(user1)  # neighbors list
