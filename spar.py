@@ -15,8 +15,10 @@ def add_node(pplan, user):
 def add_edge(pplan, user1, user2):
     return None
 
-def rm_node(pplan,user):
+
+def rm_node(pplan, user):
     return None
 
-def rm_edge(pplan,user1,user2):
+
+def rm_edge(pplan, user1, user2):
     return None
