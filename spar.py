@@ -48,8 +48,24 @@ def rm_node(pplan, user):
     return None
 
 
-def rm_edge(pplan, user1, user2):
-    return None
+def rm_edge(pplan, user1, user2, G):
+    user1_master_server = pplan.find_master_server(user1)  # is a number
+    user2_master_server = pplan.find_master_server(user2)
+    user1_slave_server = pplan.find_slave_server(user1)  # is a list
+    user2_slave_server = pplan.find_slave_server(user2)
+    user1_neighbors = G.find_neighbors(user1)  # neighbors list
+
+    for neighbor in user1_neighbors:
+        pplan.partition_remove_slave(user1_master_server, neighbor)  # remove all slave of user1 nrighbors from
+        # user1 old master, and must not less than K
+
+    master_replicas = pplan.find_master_replica(user1_master_server)
+    for master in master_replicas:
+        neighbors = G.find_neighbors(master)  # neighbors list
+        for neighbor in neighbors:
+            pplan.partition_add_slave(user1_master_server, neighbor)
+
+    return pplan
 
 
 def no_movement_of_master(pplan, user1, user2):
@@ -83,14 +99,10 @@ def move_master(pplan, user1, user2, G):
     for neighbor in user1_neighbors:
         pplan_tmp.partition_add_slave(user2_master_server, neighbor)  # create new replica of user1 neighbors in new
         # master if it is not ready in.
-        pplan_tmp.partition_remove_slave(user1_master_server, neighbor)  # remove all slave of user1 nrighbors from
-        # user1 old master, and must not less than K
 
-    master_replicas = pplan_tmp.find_master_replica(user1_master_server)
-    for master in master_replicas:
-        neighbors = G.find_neighbors(master)  # neighbors list
-        for neighbor in neighbors:
-            pplan_tmp.partition_add_slave(user1_master_server, neighbor)
+        if remove_slave_replica(pplan, user1_master_server, neighbor, user1, G):
+            pplan_tmp.partition_remove_slave(user1_master_server, neighbor)
+
     return pplan_tmp
 
 
@@ -108,3 +120,17 @@ def imbalance_ratio(pplan):
         tmp = pplan.find_master_replica(server)  # list
         master_num.append(len(tmp))
     return 1.0 * max(master_num) / min(master_num)
+
+
+def remove_slave_replica(pplan, server, user, userdel, G):
+    master_replicas = pplan.find_master_replica(server)
+    user_neighbors = G.find_neighbors(user)
+
+    user_serives = np.intersect1d(master_replicas, user_neighbors)
+
+    user_serives_sub_userdel = np.setdiff1d(user_serives, np.array([userdel]))
+
+    if len(user_serives_sub_userdel) == 0:
+        return True
+    else:
+        return False
