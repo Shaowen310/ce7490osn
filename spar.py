@@ -44,7 +44,7 @@ def add_edge(pplan, user1, user2, G):
     strategies.append(pplan_user2_to_user1)
     s_name.append('move u2 to u1')
 
-    sort_tuple = [(ratios[i], scores[i], strategies[i],s_name[i]) for i in range(3)]
+    sort_tuple = [(ratios[i], scores[i], strategies[i], s_name[i]) for i in range(3)]
     sort_tuple.sort(key=lambda x: (x[0], -x[1]))
 
     # print(sort_tuple)
@@ -97,8 +97,37 @@ def rm_server(pplan, serverldel, G):
 
     masters = pplan.find_master_in_partition(serverldel)
 
-    # masters_conect =
-    raise NotImplementedError
+    masters_connect = [len(G.get_neighbor(i)) for i in masters]
+
+    sort_tuple = [(masters_connect[i], masters[i]) for i in range(len(masters))]
+    sort_tuple.sort(key=lambda x: (-x[0]))
+
+    for j in sort_tuple:
+        id = j[1]
+
+        # find the server hold most neighbors of this master
+        user_neighbors = G.get_neighbors(id)  # neighbors list
+        all_nerighbor_server = [np.append(pplan.find_partition_having_slave(i), pplan.find_partition_having_master(i))
+                                for i in user_neighbors]
+
+        all_nerighbor_server = np.array([item for sub_list in all_nerighbor_server for item in sub_list])
+
+        all_nerighbor_server_num = np.bincount(all_nerighbor_server)
+
+        max_neightbor_server = np.argsort(all_nerighbor_server_num)[-len(all_nerighbor_server_num)][::-1]
+        master_num = pplan.num_masters_per_partition()
+
+        min_num = np.min(master_num)
+        for index in max_neightbor_server:
+
+            cur_master_num = master_num[index]
+
+            if cur_master_num + 1 - min_num < cap:
+                pplan.move_master_to_partition(index, id)
+                for neighbor in user_neighbors:
+                    pplan.partition_add_slave(index, neighbor)
+                break
+
 
 
 def rm_node(pplan, user, G):
