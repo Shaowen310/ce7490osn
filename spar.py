@@ -129,7 +129,6 @@ def rm_server(pplan, serverldel, G):
                 break
 
 
-
 def rm_node(pplan, user, G):
     user_neighbors = G.get_neighbors(user)  # neighbors list
 
