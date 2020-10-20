@@ -14,33 +14,19 @@ action = [
 pp = PartitionPlan(4, 5, 4)
 
 pp.partition_ids()
-
-# %%
-pp = spar.add_node(pp, 0)
-pp = spar.add_node(pp, 1)
-
-# %%
-
 G1 = snap.TNGraph.New()
-G1.AddNode(0)
-G1.AddNode(1)
-G1.AddEdge(0, 1)
+G = Graph(G1)
 
-n0 = G1.GetNI(0)
-out_nodes = list(n0.GetOutEdges())
-
-g = Graph(G1)
 
 # %%
-spar.add_edge(pp, 0, 1, g)
-
-# %%
-# for i in range(len(action)):
-#     node1 = action[i]
-#     node2 = action[i + 1]
-#     if not pp.contains_user(node1):
-#         spar.add_node(pp, node1)
-#     if not pp.contains_user(node2):
-#         spar.add_node(pp, node2)
-#     spar.add_edge(pp, node1, node2)
-# %%
+for i in range(len(action)):
+    node1 = action[i]
+    node2 = action[i + 1]
+    if not pp.contains_user(node1):
+        pp = spar.add_node(pp, node1)
+        G.add_node(node1)
+    if not pp.contains_user(node2):
+        pp = spar.add_node(pp, node2)
+        G.add_node(node2)
+    G.add_edge(node1, node2)
+    pp = spar.add_edge(pp, node1, node2, G)
