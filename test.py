@@ -30,3 +30,5 @@ for i in range(len(action)):
         G.add_node(node2)
     G.add_edge(node1, node2)
     pp = spar.add_edge(pp, node1, node2, G)
+
+# %%
