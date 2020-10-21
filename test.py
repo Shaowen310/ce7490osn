@@ -11,7 +11,7 @@ action = [
 ]
 
 # %%
-pp = PartitionPlan(4, 5, 4)
+pp = PartitionPlan(4, 21, 4)
 
 pp.partition_ids()
 G1 = snap.TNGraph.New()
@@ -19,7 +19,7 @@ G = Graph(G1)
 
 
 # %%
-for i in range(len(action)):
+for i in range(len(action)-1):
     node1 = action[i]
     node2 = action[i + 1]
     if not pp.contains_user(node1):

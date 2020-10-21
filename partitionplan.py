@@ -42,27 +42,49 @@ class PartitionPlan:
 
     def partition_add_master(self, partition_id, user_id):
         assert self.palloc[partition_id]
+        if self.u2p[user_id, partition_id] != self.NOALLOC:
+            print('Add master ignored as user {0} partition {1} is allocated'.
+                  format(user_id, partition_id))
+            return
         self.u2p[user_id, partition_id] = self.MASTER
         self.ualloc[user_id] = True
 
-    def partition_add_slave(self, partition_ids, user_id):
-        assert np.alltrue(self.palloc[partition_ids])
-        self.u2p[user_id, partition_ids] = self.SLAVE
+    def partition_add_slave(self, partition_id, user_id):
+        assert self.palloc[partition_id]
+        if self.u2p[user_id, partition_id] != self.NOALLOC:
+            print('Add slave ignored as user {0} partition {1} is allocated'.
+                  format(user_id, partition_id))
+            return
+        self.u2p[user_id, partition_id] = self.SLAVE
         self.ualloc[user_id] = True
 
+    def partitions_add_slave(self, partition_ids, user_id):
+        for pid in partition_ids:
+            self.partition_add_slave(pid, user_id)
+
     def _remove_master(self, user_id):
-        self.u2p[user_id, np.flatnonzero(self.u2p[user_id] == self.MASTER)] = self.NOALLOC
+        self.u2p[user_id,
+                 np.flatnonzero(
+                     self.u2p[user_id] == self.MASTER)] = self.NOALLOC
 
     def _partition_remove_replica(self, partition_id, user_id):
         self.u2p[user_id, partition_id] = self.NOALLOC
 
     def partition_remove_slave(self, partition_id, user_id):
         assert self.palloc[partition_id]
+        if self.u2p[user_id, partition_id] != self.SLAVE:
+            print(
+                'Remove slave ignored as user {0} partition {1} is not slave'.format(
+                    user_id, partition_id))
+            return
         self._partition_remove_replica(partition_id, user_id)
-        self.ualloc[user_id] = not np.alltrue(self.u2p[user_id] == self.NOALLOC)
+        self.ualloc[user_id] = not np.alltrue(
+            self.u2p[user_id] == self.NOALLOC)
 
     def remove_user(self, user_id):
-        self.u2p[user_id] = np.full(self.u2p.shape[1], self.NOALLOC, dtype=np.int8)
+        self.u2p[user_id] = np.full(self.u2p.shape[1],
+                                    self.NOALLOC,
+                                    dtype=np.int8)
         self.ualloc[user_id] = False
 
     def partition_ids(self):

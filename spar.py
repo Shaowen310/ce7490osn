@@ -13,7 +13,7 @@ def add_node(pplan, user):
     pplan.partition_add_master(pid_least_masters, user)
     pids = pplan.partition_ids_not_having_master(user)
     pids_slave = pids[RNG.choice(len(pids), K, replace=False)]
-    pplan.partition_add_slave(pids_slave, user)
+    pplan.partitions_add_slave(pids_slave, user)
 
     return pplan
 
@@ -24,11 +24,19 @@ def add_edge(pplan, user1, user2, G):
     strategies = []
     s_name = []
     # no movements
+
+    print('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
+
+    print(pplan.u2p)
+
+    print('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
+
     pplan_nomovements = no_movement_of_master(pplan, user1, user2)
     scores.append(evaluate(pplan_nomovements))
     ratios.append(imbalance_ratio(pplan_nomovements))
     strategies.append(pplan_nomovements)
     s_name.append('no movement')
+    print('no_movement plan', pplan_nomovements.u2p)
 
     # move user1 master to user2 server
     pplan_user1_to_user2 = move_master(pplan, user1, user2, G)
@@ -36,6 +44,7 @@ def add_edge(pplan, user1, user2, G):
     ratios.append(imbalance_ratio(pplan_user1_to_user2))
     strategies.append(pplan_user1_to_user2)
     s_name.append('move u1 to u2')
+    print('move u1 to u2 plan', pplan_user1_to_user2.u2p)
 
     # move user2 master to user1 server
     pplan_user2_to_user1 = move_master(pplan, user2, user1, G)
@@ -43,6 +52,7 @@ def add_edge(pplan, user1, user2, G):
     ratios.append(imbalance_ratio(pplan_user2_to_user1))
     strategies.append(pplan_user2_to_user1)
     s_name.append('move u2 to u1')
+    print('move u2 to u1 plan', pplan_user2_to_user1.u2p)
 
     sort_tuple = [(ratios[i], scores[i], strategies[i], s_name[i]) for i in range(3)]
     sort_tuple.sort(key=lambda x: (x[0], -x[1]))
@@ -175,10 +185,14 @@ def no_movement_of_master(pplan, user1, user2):
 
 def move_master(pplan, user1, user2, G):
     pplan_tmp = copy.deepcopy(pplan)
+    print("*********************************")
+    print(user1,user2)
 
     user1_master_server = pplan_tmp.find_partition_having_master(
         user1)  # is a number
     user2_master_server = pplan_tmp.find_partition_having_master(user2)
+
+    # if user1_master_server != user2_master_server:
 
     pplan_tmp.move_master_to_partition(
         user2_master_server, user1)  # move user1 master to user2 master server
@@ -196,6 +210,11 @@ def move_master(pplan, user1, user2, G):
         if remove_slave_replica(pplan_tmp, user1_master_server, neighbor,
                                 user1, G):
             pplan_tmp.partition_remove_slave(user1_master_server, neighbor)
+    
+    print(pplan.u2p)
+    print(pplan_tmp.u2p)
+
+    print("*****************************************")
 
     return pplan_tmp
 
