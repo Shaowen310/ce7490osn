@@ -1,3 +1,5 @@
+import os
+
 import numpy as np
 
 
@@ -18,6 +20,32 @@ class PartitionPlan:
         self.palloc[:n_partitions] = True
         # user partition assignment matrix, 0: none, 1: MASTER, 2: SLAVE
         self.u2p = np.full((self.ucap, self.pcap), self.NOALLOC, dtype=np.int8)
+
+    def save(self, folder):
+
+        if not os.path.exists(folder):
+            os.makedirs(folder)
+
+        ualloc_file = os.path.join(folder, 'ualloc.npy')
+        np.save(ualloc_file, self.ualloc)
+        palloc_file = os.path.join(folder, 'palloc.npy')
+        np.save(palloc_file, self.palloc)
+        u2p_file = os.path.join(folder, 'u2p.npy')
+        np.save(u2p_file, self.u2p)
+
+    def load(self, folder):
+        try:
+            ualloc_file = os.path.join(folder, 'ualloc.npy')
+            self.ualloc = np.load(ualloc_file)
+            palloc_file = os.path.join(folder, 'palloc.npy')
+            self.palloc = np.load(palloc_file)
+            u2p_file = os.path.join(folder, 'u2p.npy')
+            self.u2p = np.load(u2p_file)
+
+            self.ucap = len(self.ualloc)
+            self.pcap = len(self.palloc)
+        except FileNotFoundError:
+            print('file can not be found')
 
     def num_masters_per_partition(self):
         au2app = self.u2p[np.ix_(self.ualloc, self.palloc)] == self.MASTER

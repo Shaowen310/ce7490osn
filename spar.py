@@ -81,7 +81,7 @@ def add_server_1(pplan, new_server, G):
             move_num = user_num - total_processed
         total_processed = total_processed + move_num
 
-        move_ids = np.random.choice(len(masters), move_num)
+        move_ids = np.random.choice(len(masters), move_num, replace=False)
 
         for id in move_ids:
             pplan.move_master_to_partition(new_server, masters[id])
@@ -210,7 +210,7 @@ def move_master(pplan, user1, user2, G):
         if remove_slave_replica(pplan_tmp, user1_master_server, neighbor,
                                 user1, G):
             pplan_tmp.partition_remove_slave(user1_master_server, neighbor)
-    
+
     # print(pplan.u2p)
     # print(pplan_tmp.u2p)
     #
