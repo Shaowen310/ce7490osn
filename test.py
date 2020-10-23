@@ -57,11 +57,12 @@ def load_graph(graph: Graph, action_file, undirected=False):
 
 
 # %%
-pp = PartitionPlan(10, 5000, 4)
+pp = PartitionPlan(20, 5000, 10)
 
 pp.partition_ids()
 G1 = snap.TNGraph.New()
 G = Graph(G1)
+
 
 # %%
 # for i in range(len(action) - 1):
@@ -77,16 +78,29 @@ G = Graph(G1)
 #     pp = spar.add_edge(pp, node1, node2, G)
 
 # %%
+def partitaion(save):
+    global pp
+    for (node1, node2) in generate_action('./data/snap/facebook/facebook_combined/facebook_combined_rand.txt'):
+        if not pp.contains_user(node1):
+            pp = spar.add_node(pp, node1)
+            G.add_node(node1)
+        if not pp.contains_user(node2):
+            pp = spar.add_node(pp, node2)
+            G.add_node(node2)
+        G.add_edge(node1, node2)
+        G.add_edge(node2, node1)
+        pp = spar.add_edge(pp, node1, node2, G)
 
-for (node1, node2) in generate_action('./data/snap/facebook/facebook_combined/facebook_combined_rand.txt'):
-    if not pp.contains_user(node1):
-        pp = spar.add_node(pp, node1)
-        G.add_node(node1)
-    if not pp.contains_user(node2):
-        pp = spar.add_node(pp, node2)
-        G.add_node(node2)
-    G.add_edge(node1, node2)
-    G.add_edge(node2, node1)
-    pp = spar.add_edge(pp, node1, node2, G)
+    pp.save(save)
 
-pp.save('./test1')
+
+def load(load_name):
+    global pp
+    pp.load(load_name)
+    load_graph(G, './data/snap/facebook/facebook_combined/facebook_combined_rand.txt', undirected=True)
+
+
+if __name__ == '__main__':
+    partitaion('./test_server10')
+    # load()
+    # print(pp.u2p)
