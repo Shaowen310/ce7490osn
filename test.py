@@ -5,10 +5,11 @@ from graph import Graph
 from partitionplan import PartitionPlan
 import spar
 
-action = [
-    0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0, 8, 0, 9, 0, 10, 0, 11, 0, 12,
-    0, 13, 0, 14, 0, 15, 0, 16, 0, 17, 0, 18, 0, 19, 0, 20
-]
+
+# action = [
+#     0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0, 8, 0, 9, 0, 10, 0, 11, 0, 12,
+#     0, 13, 0, 14, 0, 15, 0, 16, 0, 17, 0, 18, 0, 19, 0, 20
+# ]
 
 
 def generate_action(file_name):
@@ -57,11 +58,6 @@ def load_graph(graph: Graph, action_file, undirected=False):
 
 
 # %%
-pp = PartitionPlan(20, 5000, 10)
-
-pp.partition_ids()
-G1 = snap.TNGraph.New()
-G = Graph(G1)
 
 
 # %%
@@ -101,6 +97,17 @@ def load(load_name):
 
 
 if __name__ == '__main__':
-    partitaion('./test_server10')
-    # load()
-    # print(pp.u2p)
+    pp = PartitionPlan(512, 5000, 512)
+
+    pp.partition_ids()
+    G1 = snap.TNGraph.New()
+    G = Graph(G1)
+    # for server_num in [4, 8, 16, 32, 64, 128, 256, 512]:
+    #     pp = PartitionPlan(server_num, 5000, server_num)
+    #
+    #     pp.partition_ids()
+    #     G1 = snap.TNGraph.New()
+    #     G = Graph(G1)
+    #     partitaion('./test_server' + str(server_num))
+    load('./test_server'+str(512))
+    print(pp.u2p)
