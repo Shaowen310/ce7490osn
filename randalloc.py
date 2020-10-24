@@ -16,12 +16,12 @@ def add_node(pplan, user):
     return pplan
 
 
-def add_edge(pplan, user1, user2, G):
-    u1master = pplan.find_partition_having_master(user1)
+def add_edge(pplan, user1, user2, G, undirected=True):
     u2master = pplan.find_partition_having_master(user2)
-    pplan.partition_add_slave(u1master, user2)
     pplan.partition_add_slave(u2master, user1)
-
+    if undirected:
+        u1master = pplan.find_partition_having_master(user1)
+        pplan.partition_add_slave(u1master, user2)
     return pplan
 
 
