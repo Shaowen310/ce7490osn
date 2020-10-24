@@ -57,26 +57,9 @@ def load_graph(graph: Graph, action_file, undirected=False):
             graph.add_edge(n2, n1)
 
 
-# %%
-
-
-# %%
-# for i in range(len(action) - 1):
-#     node1 = action[i]
-#     node2 = action[i + 1]
-#     if not pp.contains_user(node1):
-#         pp = spar.add_node(pp, node1)
-#         G.add_node(node1)
-#     if not pp.contains_user(node2):
-#         pp = spar.add_node(pp, node2)
-#         G.add_node(node2)
-#     G.add_edge(node1, node2)
-#     pp = spar.add_edge(pp, node1, node2, G)
-
-# %%
-def partitaion(save):
+def partitaion(save, file, undirected=True):
     global pp
-    for (node1, node2) in generate_action('./data/snap/facebook/facebook_combined/facebook_combined_rand.txt'):
+    for (node1, node2) in generate_action(file):
         if not pp.contains_user(node1):
             pp = spar.add_node(pp, node1)
             G.add_node(node1)
@@ -84,16 +67,17 @@ def partitaion(save):
             pp = spar.add_node(pp, node2)
             G.add_node(node2)
         G.add_edge(node1, node2)
-        G.add_edge(node2, node1)
+        if undirected:
+            G.add_edge(node2, node1)
         pp = spar.add_edge(pp, node1, node2, G)
 
     pp.save(save)
 
 
-def load(load_name):
+def load(load_name, file, undirected=True):
     global pp
     pp.load(load_name)
-    load_graph(G, './data/snap/facebook/facebook_combined/facebook_combined_rand.txt', undirected=True)
+    load_graph(G, file, undirected=undirected)
 
 
 if __name__ == '__main__':
@@ -109,5 +93,5 @@ if __name__ == '__main__':
     #     G1 = snap.TNGraph.New()
     #     G = Graph(G1)
     #     partitaion('./test_server' + str(server_num))
-    load('./test_server'+str(512))
+    load('./test_server' + str(512))
     print(pp.u2p)
