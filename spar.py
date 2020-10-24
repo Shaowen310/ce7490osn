@@ -149,10 +149,10 @@ def rm_edge(pplan, user1, user2, G):
     user2_master_server = pplan.find_master_server(user2)
 
     if remove_slave_replica(pplan, user1_master_server, user2, user1, G):
-        pplan.partition_remove_slave(user1_master_server, user2)
+        pplan.partition_remove_slave(user1_master_server, user2, k=K)
 
     if remove_slave_replica(pplan, user2_master_server, user1, user2, G):
-        pplan.partition_remove_slave(user2_master_server, user1)
+        pplan.partition_remove_slave(user2_master_server, user1, k=K)
 
     return pplan
 
@@ -190,7 +190,6 @@ def move_master(pplan, user1, user2, G):
 
     pplan_tmp.move_master_to_partition(
         user2_master_server, user1)  # move user1 master to user2 master server
-
 
     user1_neighbors = G.get_neighbors(user1)  # neighbors list
 

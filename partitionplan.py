@@ -105,7 +105,7 @@ class PartitionPlan:
     def _partition_remove_replica(self, partition_id, user_id):
         self.u2p[user_id, partition_id] = self.NOALLOC
 
-    def partition_remove_slave(self, partition_id, user_id, k=0):
+    def partition_remove_slave(self, partition_id, user_id, k=2):
         assert self.palloc[partition_id]
         if self.u2p[user_id, partition_id] != self.SLAVE:
             print(
