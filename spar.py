@@ -190,12 +190,18 @@ def move_master(pplan, user1, user2, G):
 
     pplan_tmp.move_master_to_partition(
         user2_master_server, user1)  # move user1 master to user2 master server
-    pplan_tmp.partition_add_slave(
-        user1_master_server, user1)  # create user1 slave on user1 old mater
+
 
     user1_neighbors = G.get_neighbors(user1)  # neighbors list
 
+    have_created = False
     for neighbor in user1_neighbors:
+
+        if not have_created and pplan_tmp.find_partition_having_master(neighbor) == user1_master_server:
+            pplan_tmp.partition_add_slave(
+                user1_master_server, user1)  # create user1 slave on user1 old mater
+            have_created = True
+
         pplan_tmp.partition_add_slave(
             user2_master_server,
             neighbor)  # create new replica of user1 neighbors in new
