@@ -69,7 +69,7 @@ def partitaion(save, file, undirected=True):
         G.add_edge(node1, node2)
         if undirected:
             G.add_edge(node2, node1)
-        pp = spar.add_edge(pp, node1, node2, G,undirected)
+        pp = spar.add_edge(pp, node1, node2, G, undirected)
 
     pp.save(save)
 
@@ -80,12 +80,41 @@ def load(load_name, file, undirected=True):
     load_graph(G, file, undirected=undirected)
 
 
+def preprocess_twitter(file_name):
+    record = {}
+    index = 0
+    save = ''
+
+    with open(file_name, 'r') as file:
+        for line in file.readlines():
+            line = line.replace('\n', '')
+            if line != '':
+                user_ids = line.split(' ')
+                user1 = int(user_ids[0])
+                user2 = int(user_ids[1])
+                if user1 not in record.keys():
+                    record[user1] = index
+                    index = index + 1
+                if user2 not in record.keys():
+                    record[user2] = index
+                    index = index + 1
+            save = save + str(record[user1]) + ' ' + str(record[user2]) + '\n'
+
+    print(index)
+
+    file_name_random = file_name[0:-4] + str('_rand.txt')
+    with open(file_name_random, 'w+') as file:
+        file.write(save)
+
+
 if __name__ == '__main__':
     pp = PartitionPlan(512, 5000, 512)
 
     pp.partition_ids()
     G1 = snap.TNGraph.New()
     G = Graph(G1)
+
+    preprocess_twitter('./data/snap/twitter/twitter_combined.txt')
     # for server_num in [4, 8, 16, 32, 64, 128, 256, 512]:
     #     pp = PartitionPlan(server_num, 5000, server_num)
     #
@@ -93,5 +122,6 @@ if __name__ == '__main__':
     #     G1 = snap.TNGraph.New()
     #     G = Graph(G1)
     #     partitaion('./test_server' + str(server_num))
-    load('./test_server' + str(512))
-    print(pp.u2p)
+    # load('./test_server' + str(512))
+    # partitaion('./test_server512', './data/snap/twitter/twitter_combined.txt', undirected=False)
+    # print(pp.u2p)
