@@ -1,7 +1,9 @@
 import os
 
 import numpy as np
+import logging
 
+module_logger = logging.getLogger('partitionplan')
 
 class PartitionPlan:
     NOALLOC = 0
@@ -9,6 +11,7 @@ class PartitionPlan:
     SLAVE = 2
 
     def __init__(self, ualloc, palloc, u2p):
+        self.logger = logging.getLogger('partitionplan.PartitionPlan')
         self.ucap = len(ualloc)
         self.pcap = len(palloc)
         self.ualloc = ualloc
@@ -16,6 +19,7 @@ class PartitionPlan:
         self.u2p = u2p
 
     def __init__(self, n_partitions, user_capacity, partition_capacity):
+        self.logger = logging.getLogger('partitionplan.PartitionPlan')
         # Assumption: user_id determines the user's storage location
         # partition_id determines the partition's storage location
         self.ucap = user_capacity
@@ -78,7 +82,7 @@ class PartitionPlan:
     def partition_add_master(self, partition_id, user_id):
         assert self.palloc[partition_id]
         if self.u2p[user_id, partition_id] != self.NOALLOC:
-            print('Add master ignored as user {0} partition {1} is allocated'.
+            self.logger.info('Add master ignored as user {0} partition {1} is allocated'.
                   format(user_id, partition_id))
             return
         self.u2p[user_id, partition_id] = self.MASTER
@@ -87,7 +91,7 @@ class PartitionPlan:
     def partition_add_slave(self, partition_id, user_id):
         assert self.palloc[partition_id]
         if self.u2p[user_id, partition_id] != self.NOALLOC:
-            print('Add slave ignored as user {0} partition {1} is allocated'.
+            self.logger.info('Add slave ignored as user {0} partition {1} is allocated'.
                   format(user_id, partition_id))
             return
         self.u2p[user_id, partition_id] = self.SLAVE
@@ -103,12 +107,12 @@ class PartitionPlan:
     def partition_remove_slave(self, partition_id, user_id, k=2):
         assert self.palloc[partition_id]
         if self.u2p[user_id, partition_id] != self.SLAVE:
-            print(
+            self.logger.info(
                 'Remove slave ignored as user {0} partition {1} is not slave'.format(
                     user_id, partition_id))
             return
         if self.num_slaves_by_user(user_id) <= k:
-            print('Remove slave ignored as at least {0} slave should be kept'.format(k))
+            self.logger.debug('Remove slave ignored as at least {0} slave should be kept'.format(k))
             return
         self._partition_remove_replica(partition_id, user_id)
         self.ualloc[user_id] = not np.alltrue(
@@ -137,11 +141,11 @@ class PartitionPlan:
 
     def move_master_to_partition(self, to_partition_id, user_id, k=0):
         assert self.palloc[to_partition_id]
-        from_pid = self.find_partition_having_master[user_id]
+        from_pid = self.find_partition_having_master(user_id)
         self._partition_remove_replica(from_pid, user_id)
         self.u2p[user_id, to_partition_id] = self.MASTER
         if self.num_slaves_by_user(user_id) < k:
-            print('Assign a new slave as n_slaves < {0}', k)
+            self.logger.debug('Assign a new slave as n_slaves < {0}', k)
             self.u2p[user_id, from_pid] = self.SLAVE
 
     def find_master_in_partition(self, partition_id):
