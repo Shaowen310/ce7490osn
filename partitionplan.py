@@ -145,13 +145,12 @@ class PartitionPlan:
         self._remove_master(user_id)
         add_slave = self.u2p[user_id, to_partition_id] == self.SLAVE
         self.u2p[user_id, to_partition_id] = self.MASTER
-        if add_slave == self.SLAVE:
-            self.u2p[user_id, to_partition_id] = self.MASTER
+        if add_slave:
             pids = self.partition_ids_not_having_replica(user_id)
             if len(pids) == 0:
                 print('No partition available to assign new slave for user {0}'.format(user_id))
                 return
-            pids[0] = self.SLAVE
+            self.u2p[user_id, pids[0]] = self.SLAVE
 
     def find_master_in_partition(self, partition_id):
         assert self.palloc[partition_id]
