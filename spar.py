@@ -77,7 +77,7 @@ def add_server_1(pplan, new_server, G):
         move_ids = np.random.choice(len(masters), move_num, replace=False)
 
         for id in move_ids:
-            pplan.move_master_to_partition(new_server, masters[id])
+            pplan.move_master_to_partition(new_server, masters[id],k=K)
 
             neighbors = G.get_neighbors(masters[id])  # neighbors list
 
@@ -126,7 +126,7 @@ def rm_server(pplan, serverldel, G):
             cur_master_num = master_num[index]
 
             if cur_master_num + 1 - min_num < cap:
-                pplan.move_master_to_partition(index, id)
+                pplan.move_master_to_partition(index, id,k=K)
                 for neighbor in user_neighbors:
                     pplan.partition_add_slave(index, neighbor)
                 break
@@ -137,6 +137,8 @@ def rm_node(pplan, user, G):
 
     for neighbor in user_neighbors:
         pplan = rm_edge(pplan, user, neighbor, G)
+
+    G.remove_node(user)
 
     pplan.partition_remove_master(user)
     pplan.partition_remove_slave_all(user)
@@ -189,7 +191,7 @@ def move_master(pplan, user1, user2, G):
     # if user1_master_server != user2_master_server:
 
     pplan_tmp.move_master_to_partition(
-        user2_master_server, user1)  # move user1 master to user2 master server
+        user2_master_server, user1,k=K)  # move user1 master to user2 master server
 
     user1_neighbors = G.get_neighbors(user1)  # neighbors list
 

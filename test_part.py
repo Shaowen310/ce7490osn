@@ -17,6 +17,8 @@ pp.partition_ids()
 G1 = snap.TNGraph.New()
 G = Graph(G1)
 
+
+
 for i in range(len(action)-1):
     node1 = action[i]
     node2 = action[i + 1]
