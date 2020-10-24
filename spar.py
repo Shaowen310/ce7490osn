@@ -18,14 +18,13 @@ def add_node(pplan, user):
     return pplan
 
 
-def add_edge(pplan, user1, user2, G):
+def add_edge(pplan, user1, user2, G, undirected):
     scores = []
     ratios = []
     strategies = []
     s_name = []
 
-
-    pplan_nomovements = no_movement_of_master(pplan, user1, user2)
+    pplan_nomovements = no_movement_of_master(pplan, user1, user2, undirected)
     scores.append(evaluate(pplan_nomovements))
     ratios.append(imbalance_ratio(pplan_nomovements))
     strategies.append(pplan_nomovements)
@@ -158,7 +157,7 @@ def rm_edge(pplan, user1, user2, G):
     return pplan
 
 
-def no_movement_of_master(pplan, user1, user2,undirected=True):
+def no_movement_of_master(pplan, user1, user2, undirected=True):
     pplan_tmp = copy.deepcopy(pplan)
 
     user1_master_server = pplan_tmp.find_partition_having_master(

@@ -69,7 +69,7 @@ def partitaion(save, file, undirected=True):
         G.add_edge(node1, node2)
         if undirected:
             G.add_edge(node2, node1)
-        pp = spar.add_edge(pp, node1, node2, G)
+        pp = spar.add_edge(pp, node1, node2, G,undirected)
 
     pp.save(save)
 
