@@ -156,7 +156,4 @@ class PartitionPlan:
         return np.count_nonzero(self.ualloc)
 
     def num_replicas(self):
-        return np.count_nonzero(self.u2p)
-
-    def num_replicas(self):
         return np.count_nonzero(self.u2p[np.ix_(self.ualloc, self.palloc)])
