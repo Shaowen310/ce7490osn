@@ -8,6 +8,13 @@ class PartitionPlan:
     MASTER = 1
     SLAVE = 2
 
+    def __init__(self, ualloc, palloc, u2p):
+        self.ucap = len(ualloc)
+        self.pcap = len(palloc)
+        self.ualloc = ualloc
+        self.palloc = palloc
+        self.u2p = u2p
+
     def __init__(self, n_partitions, user_capacity, partition_capacity):
         # Assumption: user_id determines the user's storage location
         # partition_id determines the partition's storage location
@@ -144,3 +151,6 @@ class PartitionPlan:
 
     def num_replicas(self):
         return np.count_nonzero(self.u2p)
+
+    def num_replicas(self):
+        return np.count_nonzero(self.u2p[np.ix_(self.ualloc, self.palloc)])
