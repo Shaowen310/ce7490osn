@@ -105,12 +105,15 @@ class PartitionPlan:
     def _partition_remove_replica(self, partition_id, user_id):
         self.u2p[user_id, partition_id] = self.NOALLOC
 
-    def partition_remove_slave(self, partition_id, user_id):
+    def partition_remove_slave(self, partition_id, user_id, k=0):
         assert self.palloc[partition_id]
         if self.u2p[user_id, partition_id] != self.SLAVE:
             print(
                 'Remove slave ignored as user {0} partition {1} is not slave'.format(
                     user_id, partition_id))
+            return
+        if self.num_slaves_by_user(user_id) <= k:
+            print('Remove slave ignored as at least {0} slave should be kept'.format(k))
             return
         self._partition_remove_replica(partition_id, user_id)
         self.ualloc[user_id] = not np.alltrue(
