@@ -131,6 +131,9 @@ class PartitionPlan:
     def partition_ids_not_having_master(self, user_id):
         return np.flatnonzero(self.palloc & (self.u2p[user_id] != self.MASTER))
 
+    def partition_ids_not_having_replica(self, user_id):
+        return np.flatnonzero(self.palloc & (self.u2p[user_id] == self.NOALLOC))
+
     def find_partition_having_master(self, user_id):
         return np.flatnonzero(self.u2p[user_id] == self.MASTER)[0]
 
@@ -140,7 +143,15 @@ class PartitionPlan:
     def move_master_to_partition(self, to_partition_id, user_id):
         assert self.palloc[to_partition_id]
         self._remove_master(user_id)
+        add_slave = self.u2p[user_id, to_partition_id] == self.SLAVE
         self.u2p[user_id, to_partition_id] = self.MASTER
+        if add_slave == self.SLAVE:
+            self.u2p[user_id, to_partition_id] = self.MASTER
+            pids = self.partition_ids_not_having_replica(user_id)
+            if len(pids) == 0:
+                print('No partition available to assign new slave for user {0}'.format(user_id))
+                return
+            pids[0] = self.SLAVE
 
     def find_master_in_partition(self, partition_id):
         assert self.palloc[partition_id]
