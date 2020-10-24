@@ -19,61 +19,53 @@ def add_node(pplan, user):
 
 
 def add_edge(pplan, user1, user2, G, undirected):
+    u1_master_server = pplan.find_partition_having_master(user1)
+    u2_master_server = pplan.find_partition_having_master(user2)
+    u1_slave_servers = pplan.find_partition_having_slave(user1)
+    u2_slave_servers = pplan.find_partition_having_slave(user2)
+
+    if u1_master_server == u2_master_server:
+        return pplan
+
+    if (u1_master_server in u2_slave_servers) or (u2_master_server in u1_slave_servers):
+        return pplan
+
     scores = []
     ratios = []
     strategies = []
     s_name = []
 
-    user1_master_server = pplan.find_partition_having_master(
-        user1)  # is a number
-    user2_master_server = pplan.find_partition_having_master(user2)
-    user1_slave_server = pplan.find_partition_having_slave(
-        user1)  # is a list
-    user2_slave_server = pplan.find_partition_having_slave(user2)
+    pp_nomove = no_movement_of_master(pplan, user1, user2)
+    scores.append(evaluate(pp_nomove))
+    ratios.append(imbalance_ratio(pp_nomove))
+    strategies.append(pp_nomove)
+    s_name.append('no movement')
+    # print('no_movement plan', pplan_nomovements.u2p)
 
-    furture = False
+    # move user1 master to user2 master server
+    pp_u1_to_u2 = move_master(pplan, user1, user2, G)
+    scores.append(evaluate(pp_u1_to_u2))
+    ratios.append(imbalance_ratio(pp_u1_to_u2))
+    strategies.append(pp_u1_to_u2)
+    s_name.append('move u1 to u2')
+    # print('move u1 to u2 plan', pplan_user1_to_user2.u2p)
 
-    if user1_master_server not in user2_slave_server and user1_master_server != user2_master_server:
-        furture = True
+    # move user2 master to user1 server
+    pp_u2_to_u1 = move_master(pplan, user2, user1, G)
+    scores.append(evaluate(pp_u2_to_u1))
+    ratios.append(imbalance_ratio(pp_u2_to_u1))
+    strategies.append(pp_u2_to_u1)
+    s_name.append('move u2 to u1')
+    # print('move u2 to u1 plan', pplan_user2_to_user1.u2p)
 
-    if undirected:
-        if user2_master_server not in user1_slave_server and user2_master_server != user1_master_server:
-            furture = True
+    sort_tuple = [(ratios[i], scores[i], strategies[i], s_name[i]) for i in range(3)]
+    sort_tuple.sort(key=lambda x: (x[0], x[1]))
 
-    if furture:
-        pplan_nomovements = no_movement_of_master(pplan, user1, user2, undirected)
-        scores.append(evaluate(pplan_nomovements))
-        ratios.append(imbalance_ratio(pplan_nomovements))
-        strategies.append(pplan_nomovements)
-        s_name.append('no movement')
-        # print('no_movement plan', pplan_nomovements.u2p)
+    # print(sort_tuple)
+    pplan = sort_tuple[0][2]
+    print(sort_tuple[0][3])
 
-        # move user1 master to user2 server
-        pplan_user1_to_user2 = move_master(pplan, user1, user2, G)
-        scores.append(evaluate(pplan_user1_to_user2))
-        ratios.append(imbalance_ratio(pplan_user1_to_user2))
-        strategies.append(pplan_user1_to_user2)
-        s_name.append('move u1 to u2')
-        # print('move u1 to u2 plan', pplan_user1_to_user2.u2p)
-
-        # move user2 master to user1 server
-        pplan_user2_to_user1 = move_master(pplan, user2, user1, G)
-        scores.append(evaluate(pplan_user2_to_user1))
-        ratios.append(imbalance_ratio(pplan_user2_to_user1))
-        strategies.append(pplan_user2_to_user1)
-        s_name.append('move u2 to u1')
-        # print('move u2 to u1 plan', pplan_user2_to_user1.u2p)
-
-        sort_tuple = [(ratios[i], scores[i], strategies[i], s_name[i]) for i in range(3)]
-        sort_tuple.sort(key=lambda x: (x[0], x[1]))
-
-        # print(sort_tuple)
-        pplan = sort_tuple[0][2]
-        print(sort_tuple[0][3])
-
-        return pplan
-    else:
-        return pplan
+    return pplan
 
 
 def add_server_1(pplan, new_server, G):
@@ -87,8 +79,7 @@ def add_server_1(pplan, new_server, G):
     for i in range(len(servers)):
         masters = pplan.find_master_in_partition(servers[i])
         masters_num = len(masters)
-        move_num = masters_num - round(avg_num) + round(avg_num * i -
-                                                        total_processed)
+        move_num = masters_num - round(avg_num) + round(avg_num * i - total_processed)
         if i == len(servers) - 1:
             move_num = user_num - total_processed
         total_processed = total_processed + move_num
@@ -96,13 +87,12 @@ def add_server_1(pplan, new_server, G):
         move_ids = np.random.choice(len(masters), move_num, replace=False)
 
         for id in move_ids:
-            pplan.move_master_to_partition(new_server, masters[id],k=K)
+            pplan.move_master_to_partition(new_server, masters[id], k=K)
 
             neighbors = G.get_neighbors(masters[id])  # neighbors list
 
             for neighbor in neighbors:
-                if remove_slave_replica(pplan, servers[i], neighbor,
-                                        masters[id], G):
+                if remove_slave_replica(pplan, servers[i], neighbor, masters[id], G):
                     pplan.partition_remove_slave(servers[i], neighbor)
     return pplan
 
@@ -129,8 +119,10 @@ def rm_server(pplan, serverldel, G):
 
         # find the server hold most neighbors of this master
         user_neighbors = G.get_neighbors(id)  # neighbors list
-        all_nerighbor_server = [np.append(pplan.find_partition_having_slave(i), pplan.find_partition_having_master(i))
-                                for i in user_neighbors]
+        all_nerighbor_server = [
+            np.append(pplan.find_partition_having_slave(i), pplan.find_partition_having_master(i))
+            for i in user_neighbors
+        ]
 
         all_nerighbor_server = np.array([item for sub_list in all_nerighbor_server for item in sub_list])
 
@@ -145,7 +137,7 @@ def rm_server(pplan, serverldel, G):
             cur_master_num = master_num[index]
 
             if cur_master_num + 1 - min_num < cap:
-                pplan.move_master_to_partition(index, id,k=K)
+                pplan.move_master_to_partition(index, id, k=K)
                 for neighbor in user_neighbors:
                     pplan.partition_add_slave(index, neighbor)
                 break
@@ -178,65 +170,51 @@ def rm_edge(pplan, user1, user2, G):
     return pplan
 
 
-def no_movement_of_master(pplan, user1, user2, undirected=True):
-    pplan_tmp = copy.deepcopy(pplan)
+def no_movement_of_master(pplan, user1, user2):
+    pptmp = copy.deepcopy(pplan)
 
-    user1_master_server = pplan_tmp.find_partition_having_master(
-        user1)  # is a number
-    user2_master_server = pplan_tmp.find_partition_having_master(user2)
-    user1_slave_server = pplan_tmp.find_partition_having_slave(
-        user1)  # is a list
-    user2_slave_server = pplan_tmp.find_partition_having_slave(user2)
+    u1_master_server = pptmp.find_partition_having_master(user1)
+    u2_master_server = pptmp.find_partition_having_master(user2)
 
-    if user1_master_server not in user2_slave_server and user1_master_server != user2_master_server:
-        pplan_tmp.partition_add_slave(user1_master_server, user2)
+    pptmp.partition_add_slave(u1_master_server, user2)
+    pptmp.partition_add_slave(u2_master_server, user1)
 
-    if undirected:
-        if user2_master_server not in user1_slave_server and user2_master_server != user1_master_server:
-            pplan_tmp.partition_add_slave(user2_master_server, user1)
-
-    return pplan_tmp
+    return pptmp
 
 
 def move_master(pplan, user1, user2, G):
-    pplan_tmp = copy.deepcopy(pplan)
+    pptmp = copy.deepcopy(pplan)
     # print("*********************************")
     # print(user1,user2)
 
-    user1_master_server = pplan_tmp.find_partition_having_master(
-        user1)  # is a number
-    user2_master_server = pplan_tmp.find_partition_having_master(user2)
+    u1_master_server = pptmp.find_partition_having_master(user1)
+    u2_master_server = pptmp.find_partition_having_master(user2)
 
     # if user1_master_server != user2_master_server:
 
-    pplan_tmp.move_master_to_partition(
-        user2_master_server, user1,k=K)  # move user1 master to user2 master server
+    # move user1 master to user2 master server
+    pptmp.move_master_to_partition(u2_master_server, user1, k=K)
 
     user1_neighbors = G.get_neighbors(user1)  # neighbors list
 
     have_created = False
     for neighbor in user1_neighbors:
-
-        if not have_created and pplan_tmp.find_partition_having_master(neighbor) == user1_master_server:
-            pplan_tmp.partition_add_slave(
-                user1_master_server, user1)  # create user1 slave on user1 old mater
+        if not have_created and pptmp.find_partition_having_master(neighbor) == u1_master_server:
+            pptmp.partition_add_slave(u1_master_server, user1)  # create user1 slave on user1 old mater
             have_created = True
 
-        pplan_tmp.partition_add_slave(
-            user2_master_server,
-            neighbor)  # create new replica of user1 neighbors in new
+        pptmp.partition_add_slave(u2_master_server, neighbor)  # create new replica of user1 neighbors in new
         # master if it is not ready in.
 
-        if remove_slave_replica(pplan_tmp, user1_master_server, neighbor,
-                                user1, G):
-            pplan_tmp.partition_remove_slave(user1_master_server, neighbor)
+        if remove_slave_replica(pptmp, u1_master_server, neighbor, user1, G):
+            pptmp.partition_remove_slave(u1_master_server, neighbor)
 
     # print(pplan.u2p)
     # print(pplan_tmp.u2p)
     #
     # print("*****************************************")
 
-    return pplan_tmp
+    return pptmp
 
 
 def evaluate(pplan):
