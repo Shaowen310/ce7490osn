@@ -48,7 +48,7 @@ def add_edge(pplan, user1, user2, G, undirected):
     # print('move u2 to u1 plan', pplan_user2_to_user1.u2p)
 
     sort_tuple = [(ratios[i], scores[i], strategies[i], s_name[i]) for i in range(3)]
-    sort_tuple.sort(key=lambda x: (x[0], -x[1]))
+    sort_tuple.sort(key=lambda x: (x[0], x[1]))
 
     # print(sort_tuple)
     pplan = sort_tuple[0][2]
@@ -222,7 +222,7 @@ def move_master(pplan, user1, user2, G):
 def evaluate(pplan):
     user_num = pplan.num_users()
     replica_num = pplan.num_replicas()
-    return replica_num / user_num
+    return replica_num / user_num - 1
 
 
 def imbalance_ratio(pplan):
@@ -234,7 +234,7 @@ def imbalance_ratio(pplan):
 def remove_slave_replica(pplan, server, user, userdel, G):
     num_slave_replicas = pplan.num_slaves_by_user(user)
 
-    if num_slave_replicas + 1 <= K:
+    if num_slave_replicas <= K:
         return False
 
     master_replicas = pplan.find_master_in_partition(server)
