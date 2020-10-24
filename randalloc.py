@@ -5,6 +5,7 @@ RNG = default_rng(0)
 # redundancy
 K = 2
 
+
 def add_node(pplan, user):
     pid_least_masters = pplan.partition_least_masters()
     pplan.partition_add_master(pid_least_masters, user)
@@ -14,13 +15,15 @@ def add_node(pplan, user):
 
     return pplan
 
+
 def add_edge(pplan, user1, user2, G):
-    u1master= pplan.find_partition_having_master(user1)
-    u2master= pplan.find_partition_having_master(user2)
+    u1master = pplan.find_partition_having_master(user1)
+    u2master = pplan.find_partition_having_master(user2)
     pplan.partition_add_slave(u1master, user2)
     pplan.partition_add_slave(u2master, user1)
 
     return pplan
+
 
 def rm_edge(pplan, user1, user2, G):
     u1master = pplan.find_master_server(user1)  # is a number
@@ -33,6 +36,7 @@ def rm_edge(pplan, user1, user2, G):
         pplan.partition_remove_slave(u2master, user1)
 
     return pplan
+
 
 def rm_node(pplan, user, G):
     user_neighbors = G.get_neighbors(user)  # neighbors list

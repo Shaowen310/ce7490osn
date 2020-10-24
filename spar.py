@@ -24,37 +24,56 @@ def add_edge(pplan, user1, user2, G, undirected):
     strategies = []
     s_name = []
 
-    pplan_nomovements = no_movement_of_master(pplan, user1, user2, undirected)
-    scores.append(evaluate(pplan_nomovements))
-    ratios.append(imbalance_ratio(pplan_nomovements))
-    strategies.append(pplan_nomovements)
-    s_name.append('no movement')
-    # print('no_movement plan', pplan_nomovements.u2p)
+    user1_master_server = pplan.find_partition_having_master(
+        user1)  # is a number
+    user2_master_server = pplan.find_partition_having_master(user2)
+    user1_slave_server = pplan.find_partition_having_slave(
+        user1)  # is a list
+    user2_slave_server = pplan.find_partition_having_slave(user2)
 
-    # move user1 master to user2 server
-    pplan_user1_to_user2 = move_master(pplan, user1, user2, G)
-    scores.append(evaluate(pplan_user1_to_user2))
-    ratios.append(imbalance_ratio(pplan_user1_to_user2))
-    strategies.append(pplan_user1_to_user2)
-    s_name.append('move u1 to u2')
-    # print('move u1 to u2 plan', pplan_user1_to_user2.u2p)
+    furture = False
 
-    # move user2 master to user1 server
-    pplan_user2_to_user1 = move_master(pplan, user2, user1, G)
-    scores.append(evaluate(pplan_user2_to_user1))
-    ratios.append(imbalance_ratio(pplan_user2_to_user1))
-    strategies.append(pplan_user2_to_user1)
-    s_name.append('move u2 to u1')
-    # print('move u2 to u1 plan', pplan_user2_to_user1.u2p)
+    if user1_master_server not in user2_slave_server and user1_master_server != user2_master_server:
+        furture = True
 
-    sort_tuple = [(ratios[i], scores[i], strategies[i], s_name[i]) for i in range(3)]
-    sort_tuple.sort(key=lambda x: (x[0], x[1]))
+    if undirected:
+        if user2_master_server not in user1_slave_server and user2_master_server != user1_master_server:
+            furture = True
 
-    # print(sort_tuple)
-    pplan = sort_tuple[0][2]
-    print(sort_tuple[0][3])
+    if furture:
+        pplan_nomovements = no_movement_of_master(pplan, user1, user2, undirected)
+        scores.append(evaluate(pplan_nomovements))
+        ratios.append(imbalance_ratio(pplan_nomovements))
+        strategies.append(pplan_nomovements)
+        s_name.append('no movement')
+        # print('no_movement plan', pplan_nomovements.u2p)
 
-    return pplan
+        # move user1 master to user2 server
+        pplan_user1_to_user2 = move_master(pplan, user1, user2, G)
+        scores.append(evaluate(pplan_user1_to_user2))
+        ratios.append(imbalance_ratio(pplan_user1_to_user2))
+        strategies.append(pplan_user1_to_user2)
+        s_name.append('move u1 to u2')
+        # print('move u1 to u2 plan', pplan_user1_to_user2.u2p)
+
+        # move user2 master to user1 server
+        pplan_user2_to_user1 = move_master(pplan, user2, user1, G)
+        scores.append(evaluate(pplan_user2_to_user1))
+        ratios.append(imbalance_ratio(pplan_user2_to_user1))
+        strategies.append(pplan_user2_to_user1)
+        s_name.append('move u2 to u1')
+        # print('move u2 to u1 plan', pplan_user2_to_user1.u2p)
+
+        sort_tuple = [(ratios[i], scores[i], strategies[i], s_name[i]) for i in range(3)]
+        sort_tuple.sort(key=lambda x: (x[0], x[1]))
+
+        # print(sort_tuple)
+        pplan = sort_tuple[0][2]
+        print(sort_tuple[0][3])
+
+        return pplan
+    else:
+        return pplan
 
 
 def add_server_1(pplan, new_server, G):
