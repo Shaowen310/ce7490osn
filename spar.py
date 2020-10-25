@@ -228,7 +228,7 @@ def evaluate(pplan):
 def imbalance_ratio(pplan):
     master_num = pplan.num_masters_per_partition()
     max_num, min_num = np.max(master_num), np.min(master_num)
-    return 1e38 if min_num == 0 else 1. * max_num / min_num
+    return 1. * (max_num+1) / (min_num+1)
 
 
 def remove_slave_replica(pplan, server, user, userdel, G):

@@ -5,9 +5,9 @@ from graph import Graph
 from partitionplan import PartitionPlan
 import spar
 
-import logging
+# import logging
 
-logging.basicConfig(filename='myapp.log', level=logging.WARNING)
+# logging.basicConfig(filename='myapp.log', level=logging.WARNING)
 
 
 action = [
@@ -21,9 +21,7 @@ pp.partition_ids()
 G1 = snap.TUNGraph.New()
 G = Graph(G1)
 
-
-
-for i in range(len(action)-1):
+for i in range(0,len(action),2):
     node1 = action[i]
     node2 = action[i + 1]
     if not pp.contains_user(node1):
@@ -34,3 +32,5 @@ for i in range(len(action)-1):
         G.add_node(node2)
     G.add_edge(node1, node2)
     pp = spar.add_edge(pp, node1, node2, G)
+
+print("done")
