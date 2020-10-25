@@ -37,31 +37,31 @@ def add_edge(pplan, user1, user2, G):
 
     current_replica = evaluate(pplan)
 
-    pp_nomove = no_movement_of_master(pplan, user1, user2, G)
+    pp_nomove, n_replica_created = no_movement_of_master(pplan, user1, user2, G)
     # nomove_replica = evaluate(pp_nomove)
 
     scores.append(evaluate(pp_nomove))
     # ratios.append(imbalance_ratio(pp_nomove))
     strategies.append(pp_nomove)
-    s_name.append('no movement')
+    s_name.append('no movement, replica create {0}'.format(n_replica_created))
     # print('no_movement plan', pplan_nomovements.u2p)
 
     # move user1 master to user2 master server
-    pp_u1_to_u2 = move_master(pplan, user1, user2, G)
+    pp_u1_to_u2, n_replica_created = move_master(pplan, user1, user2, G)
     u1_to_u2_replica = evaluate(pplan)
     scores.append(evaluate(pp_u1_to_u2))
     # ratios.append(imbalance_ratio(pp_u1_to_u2))
     strategies.append(pp_u1_to_u2)
-    s_name.append('move u1 to u2')
+    s_name.append('move u1 to u2, replica create {0}'.format(n_replica_created))
     # print('move u1 to u2 plan', pplan_user1_to_user2.u2p)
 
     # move user2 master to user1 server
-    pp_u2_to_u1 = move_master(pplan, user2, user1, G)
+    pp_u2_to_u1, n_replica_created = move_master(pplan, user2, user1, G)
     u2_to_u1_replica = evaluate(pplan)
     scores.append(evaluate(pp_u2_to_u1))
     # ratios.append(imbalance_ratio(pp_u2_to_u1))
     strategies.append(pp_u2_to_u1)
-    s_name.append('move u2 to u1')
+    s_name.append('move u2 to u1, replica create {0}'.format(n_replica_created))
     # print('move u2 to u1 plan', pplan_user2_to_user1.u2p)
     if scores[0] <= scores[1] and scores[0] <= scores[2]:
         print(s_name[0])
@@ -204,6 +204,7 @@ def rm_edge(pplan, user1, user2, G):
 
 def no_movement_of_master(pplan, user1, user2, G):
     pptmp = copy.deepcopy(pplan)
+    n_replica_created = 0
 
     u1_master_server = pptmp.find_partition_having_master(user1)
     u2_master_server = pptmp.find_partition_having_master(user2)
@@ -212,17 +213,21 @@ def no_movement_of_master(pplan, user1, user2, G):
 
     if u1_master_server not in u2_slave_server:
         pptmp.partition_add_slave(u1_master_server, user2)
+        n_replica_created += 1
         remove_redundant_slaves_for_user(pptmp, user2, G)
 
     if u2_master_server not in u1_slave_server:
         pptmp.partition_add_slave(u2_master_server, user1)
+        n_replica_created += 1
         remove_redundant_slaves_for_user(pptmp, user1, G)
 
-    return pptmp
+    return pptmp, n_replica_created
 
 
 def move_master(pplan, user1, user2, G):
     pptmp = copy.deepcopy(pplan)
+
+    n_replica_created = 0
 
     u1_master_server = pptmp.find_partition_having_master(user1)
     u2_master_server = pptmp.find_partition_having_master(user2)
@@ -231,6 +236,7 @@ def move_master(pplan, user1, user2, G):
 
     # move user1 master to user2 master server
     pptmp.move_master_to_partition(u2_master_server, user1, k=K)
+    n_replica_created += 1
 
     user1_neighbors = G.get_neighbors(user1)  # neighbors list
 
@@ -238,17 +244,20 @@ def move_master(pplan, user1, user2, G):
     for neighbor in user1_neighbors:
         if not have_created and pptmp.find_partition_having_master(neighbor) == u1_master_server:
             pptmp.partition_add_slave(u1_master_server, user1)  # create user1 slave on user1 old mater
+            n_replica_created += 1
             remove_redundant_slaves_for_user(pptmp, user1, G)
             have_created = True
 
-        pptmp.partition_add_slave(u2_master_server, neighbor)  # create new replica of user1 neighbors in new
+        # create new replica of user1 neighbors in new
+        pptmp.partition_add_slave(u2_master_server, neighbor)
+        n_replica_created += 1
         remove_redundant_slaves_for_user(pptmp, neighbor, G)
         # master if it is not ready in.
 
         if remove_slave_replica(pptmp, u1_master_server, neighbor, user1, G):
             pptmp.partition_remove_slave(u1_master_server, neighbor)
 
-    return pptmp
+    return pptmp, n_replica_created
 
 
 def evaluate(pplan):
