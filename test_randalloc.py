@@ -3,9 +3,12 @@ import numpy as np
 import snap
 from graph import Graph
 from partitionplan import PartitionPlan
+# import spar
+import sys
+
+
 import randalloc as spar
 
-# %%
 # action = [
 #     0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0, 8, 0, 9, 0, 10, 0, 11, 0, 12,
 #     0, 13, 0, 14, 0, 15, 0, 16, 0, 17, 0, 18, 0, 19, 0, 20
@@ -105,6 +108,10 @@ def preprocess_twitter(file_name):
 
 
 if __name__ == '__main__':
+
+    # print(sys.argv)
+    # print(sys.argv)
+
     # pp = PartitionPlan(512, 5000, 512)
     #
     # pp.partition_ids()
@@ -112,10 +119,16 @@ if __name__ == '__main__':
     # G = Graph(G1)
 
     # preprocess_twitter('./data/snap/twitter/twitter_combined.txt')
-    for server_num in [256]:
+
+    num = int(sys.argv[1])
+
+    for server_num in [num]:
         pp = PartitionPlan(server_num, 5000, server_num)
 
         pp.partition_ids()
         G1 = snap.TUNGraph.New()
         G = Graph(G1)
-        partition('./test_server5' + str(server_num),'./data/snap/facebook/facebook_combined/facebook_combined.txt')
+        partition('./facebook_random_' + str(server_num), './data/snap/facebook/facebook_combined/facebook_combined_rand.txt')
+    # load('./test_server' + str(512))
+    # partitaion('./test_serverface512_2', './data/snap/facebook/facebook_combined/facebook_combined_rand.txt')
+    # print(pp.u2p)

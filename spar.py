@@ -77,7 +77,7 @@ def add_edge(pplan, user1, user2, G):
     masters2_num = len(masters2)
 
     if sort_tuple[0][1] == pp_u1_to_u2:
-        if masters1_num > masters2_num or (sort_tuple[1][0] - sort_tuple[0][0]) > imbalance_ratio(pp_u1_to_u2):
+        if masters1_num > masters2_num or (sort_tuple[1][0] - sort_tuple[0][0]) > 3*masters2_num/masters1_num:
             print(sort_tuple[0][2])
             return sort_tuple[0][1]
         else:
@@ -85,7 +85,7 @@ def add_edge(pplan, user1, user2, G):
             return sort_tuple[1][1]
 
     if sort_tuple[0][1] == pp_u2_to_u1:
-        if masters2_num > masters1_num or (sort_tuple[1][0] - sort_tuple[0][0]) > imbalance_ratio(pp_u2_to_u1):
+        if masters2_num > masters1_num or (sort_tuple[1][0] - sort_tuple[0][0]) > 3*masters1_num/masters2_num:
             print(sort_tuple[0][2])
             return sort_tuple[0][1]
         else:

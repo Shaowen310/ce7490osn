@@ -3,11 +3,11 @@ import numpy as np
 import snap
 from graph import Graph
 from partitionplan import PartitionPlan
-# import spar
+import spar
 import sys
 
 
-import randalloc as spar
+# import randalloc as spar
 
 # action = [
 #     0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0, 8, 0, 9, 0, 10, 0, 11, 0, 12,
@@ -128,7 +128,7 @@ if __name__ == '__main__':
         pp.partition_ids()
         G1 = snap.TUNGraph.New()
         G = Graph(G1)
-        partition('./facebook_random_' + str(server_num), './data/snap/facebook/facebook_combined/facebook_combined_rand.txt')
+        partition('./facebook_new_' + str(server_num), './data/snap/facebook/facebook_combined/facebook_combined_rand.txt')
     # load('./test_server' + str(512))
     # partitaion('./test_serverface512_2', './data/snap/facebook/facebook_combined/facebook_combined_rand.txt')
     # print(pp.u2p)

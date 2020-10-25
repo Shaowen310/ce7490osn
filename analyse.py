@@ -12,7 +12,7 @@ rx_replica_create = r'(replica create )(\d+)'
 
 
 # %%
-FOLDER = 'facebook_4'
+FOLDER = 'facebook_new_4'
 TEXT = 'facebook4.txt'
 
 palloc = np.load(FOLDER + '/palloc.npy')
