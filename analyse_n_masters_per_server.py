@@ -5,10 +5,6 @@ import re
 import matplotlib.pyplot as plt
 
 # %%
-rx_replica_create = r'(replica create )(\d+)'
-
-# %%
-
 FOLDERS = ['facebook_4', 'facebook_16', 'facebook_64', 'facebook_256']
 
 n_replicas_list = []

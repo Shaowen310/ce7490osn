@@ -1,3 +1,4 @@
+import numpy as np
 from numpy.random import default_rng
 
 RNG = default_rng(0)
@@ -19,8 +20,10 @@ def add_node(pplan, user):
 def add_edge(pplan, user1, user2, G):
     u2master = pplan.find_partition_having_master(user2)
     pplan.partition_add_slave(u2master, user1)
+    remove_redundant_slaves_for_user(pplan, user1, G, k=K)
     u1master = pplan.find_partition_having_master(user1)
     pplan.partition_add_slave(u1master, user2)
+    remove_redundant_slaves_for_user(pplan, user2, G, k=K)
     return pplan
 
 
@@ -60,3 +63,25 @@ def is_slave_redundant(pplan, user, server, G):
         if pplan.find_partition_having_master(neighbor) == server:
             return False
     return True
+
+def remove_redundant_slaves_for_user(pplan, user, G, k=K):
+    user_slave_servers = pplan.find_partition_having_slave(user)
+    n_slave_replicas = len(user_slave_servers)
+
+    if n_slave_replicas <= k:
+        return
+
+    user_neighbors = G.get_neighbors(user)
+    neighbor_master_servers = []
+    for neighbor in user_neighbors:
+        neighbor_master_server = pplan.find_partition_having_master(neighbor)
+        neighbor_master_servers.append(neighbor_master_server)
+    neighbor_master_servers = np.unique(np.array(neighbor_master_servers))
+
+    slave_removal_condidates = np.setdiff1d(user_slave_servers, neighbor_master_servers)
+
+    n_slaves_to_remove = min(n_slave_replicas - k, len(slave_removal_condidates))
+    if n_slaves_to_remove > 0:
+        slaves_to_remove = slave_removal_condidates[:n_slaves_to_remove]
+        for slave in slaves_to_remove:
+            pplan.partition_remove_slave(slave, user, k=0)
