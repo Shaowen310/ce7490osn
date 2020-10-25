@@ -8,7 +8,7 @@ def num_replicas(ualloc, palloc, u2p):
 
 
 # %%
-FOLDER = 'test_server2256'
+FOLDER = 'test_server2512'
 
 palloc = np.load(FOLDER + '/palloc.npy')
 ualloc = np.load(FOLDER + '/ualloc.npy')

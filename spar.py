@@ -31,41 +31,69 @@ def add_edge(pplan, user1, user2, G):
         return pplan
 
     scores = []
-    ratios = []
+    # ratios = []
     strategies = []
     s_name = []
 
+    current_replica = evaluate(pplan)
+
     pp_nomove = no_movement_of_master(pplan, user1, user2, G)
+    # nomove_replica = evaluate(pp_nomove)
+
     scores.append(evaluate(pp_nomove))
-    ratios.append(imbalance_ratio(pp_nomove))
+    # ratios.append(imbalance_ratio(pp_nomove))
     strategies.append(pp_nomove)
     s_name.append('no movement')
     # print('no_movement plan', pplan_nomovements.u2p)
 
     # move user1 master to user2 master server
     pp_u1_to_u2 = move_master(pplan, user1, user2, G)
+    u1_to_u2_replica = evaluate(pplan)
     scores.append(evaluate(pp_u1_to_u2))
-    ratios.append(imbalance_ratio(pp_u1_to_u2))
+    # ratios.append(imbalance_ratio(pp_u1_to_u2))
     strategies.append(pp_u1_to_u2)
     s_name.append('move u1 to u2')
     # print('move u1 to u2 plan', pplan_user1_to_user2.u2p)
 
     # move user2 master to user1 server
     pp_u2_to_u1 = move_master(pplan, user2, user1, G)
+    u2_to_u1_replica = evaluate(pplan)
     scores.append(evaluate(pp_u2_to_u1))
-    ratios.append(imbalance_ratio(pp_u2_to_u1))
+    # ratios.append(imbalance_ratio(pp_u2_to_u1))
     strategies.append(pp_u2_to_u1)
     s_name.append('move u2 to u1')
     # print('move u2 to u1 plan', pplan_user2_to_user1.u2p)
+    if scores[0] <= scores[1] and scores[0] <= scores[2]:
+        print(s_name[0])
+        return pp_nomove
 
-    sort_tuple = [(ratios[i], scores[i], strategies[i], s_name[i]) for i in range(3)]
-    sort_tuple.sort(key=lambda x: (x[0], x[1]))
+    sort_tuple = [(scores[i], strategies[i], s_name[i]) for i in range(3)]
+    sort_tuple.sort(key=lambda x: (x[0]))
 
-    # print(sort_tuple)
-    pplan = sort_tuple[0][2]
-    print(sort_tuple[0][3])
+    masters1 = pplan.find_master_in_partition(u1_master_server)
+    masters2 = pplan.find_master_in_partition(u2_master_server)
 
-    return pplan
+    masters1_num = len(masters1)
+    masters2_num = len(masters2)
+
+    if sort_tuple[0][1] == pp_u1_to_u2:
+        if masters1_num > masters2_num or sort_tuple[0][0] - sort_tuple[1][0] > masters2_num / masters1_num:
+            print(sort_tuple[0][2])
+            return sort_tuple[0][1]
+        else:
+            print(sort_tuple[1][2])
+            return sort_tuple[1][1]
+
+    if sort_tuple[0][1] == pp_u2_to_u1:
+        if masters2_num > masters1_num or sort_tuple[0][0] - sort_tuple[1][0] > masters1_num / masters2_num:
+            print(sort_tuple[0][2])
+            return sort_tuple[0][1]
+        else:
+            print(sort_tuple[1][2])
+            return sort_tuple[1][1]
+
+    print(sort_tuple[0][2])
+    return sort_tuple[0][1]
 
 
 def add_server_1(pplan, new_server, G):
@@ -220,15 +248,15 @@ def move_master(pplan, user1, user2, G):
 
 
 def evaluate(pplan):
-    user_num = pplan.num_users()
+    # user_num = pplan.num_users()
     replica_num = pplan.num_replicas()
-    return replica_num / user_num - 1
+    return replica_num
 
 
 def imbalance_ratio(pplan):
     master_num = pplan.num_masters_per_partition()
     max_num, min_num = np.max(master_num), np.min(master_num)
-    return 1. * (max_num+1) / (min_num+1)
+    return 1. * (max_num + 1) / (min_num + 1)
 
 
 def remove_slave_replica(pplan, server, user, userdel, G):
