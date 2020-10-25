@@ -118,7 +118,7 @@ if __name__ == '__main__':
         pp.partition_ids()
         G1 = snap.TUNGraph.New()
         G = Graph(G1)
-        partition('./test_server5' + str(server_num),'./data/snap/facebook/facebook_combined/facebook_combined.txt')
+        partition('./test_server7' + str(server_num),'./data/snap/facebook/facebook_combined/facebook_combined_rand.txt')
     # load('./test_server' + str(512))
     # partitaion('./test_serverface512_2', './data/snap/facebook/facebook_combined/facebook_combined_rand.txt')
     # print(pp.u2p)

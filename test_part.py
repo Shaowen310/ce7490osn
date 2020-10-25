@@ -21,7 +21,7 @@ pp.partition_ids()
 G1 = snap.TUNGraph.New()
 G = Graph(G1)
 
-for i in range(0,len(action),2):
+for i in range(0, len(action), 2):
     node1 = action[i]
     node2 = action[i + 1]
     if not pp.contains_user(node1):

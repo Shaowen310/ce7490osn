@@ -5,7 +5,8 @@ from partitionplan import PartitionPlan
 # %%
 
 # %%
-FOLDER = 'test_server3256'
+FOLDER = 'test_server7256'
+
 
 palloc = np.load(FOLDER + '/palloc.npy')
 ualloc = np.load(FOLDER + '/ualloc.npy')
