@@ -70,8 +70,8 @@ def add_edge(pplan, user1, user2, G):
     sort_tuple = [(scores[i], strategies[i], s_name[i]) for i in range(3)]
     sort_tuple.sort(key=lambda x: (x[0]))
 
-    masters1 = pplan.find_master_in_partition(u1_master_server)
-    masters2 = pplan.find_master_in_partition(u2_master_server)
+    masters1 = pplan.find_masters_in_partition(u1_master_server)
+    masters2 = pplan.find_masters_in_partition(u2_master_server)
 
     masters1_num = len(masters1)
     masters2_num = len(masters2)
@@ -105,7 +105,7 @@ def add_server_1(pplan, new_server, G):
 
     total_processed = 0
     for i in range(len(servers)):
-        masters = pplan.find_master_in_partition(servers[i])
+        masters = pplan.find_masters_in_partition(servers[i])
         masters_num = len(masters)
         move_num = masters_num - round(avg_num) + round(avg_num * i - total_processed)
         if i == len(servers) - 1:
@@ -135,7 +135,7 @@ def rm_server(pplan, serverldel, G):
     current_server_num = len(servers)
     cap = current_server_num  # allow maximum imbalance
 
-    masters = pplan.find_master_in_partition(serverldel)
+    masters = pplan.find_masters_in_partition(serverldel)
 
     masters_connect = [len(G.get_neighbor(i)) for i in masters]
 
@@ -265,14 +265,10 @@ def remove_slave_replica(pplan, server, user, userdel, G):
     if num_slave_replicas <= K:
         return False
 
-    master_replicas = pplan.find_master_in_partition(server)
-
+    master_users = pplan.find_masters_in_partition(server)
     user_neighbors = G.get_neighbors(user)
-
-    user_serives = np.intersect1d(master_replicas, user_neighbors)
-
+    user_serives = np.intersect1d(master_users, user_neighbors)
     user_serives_sub_userdel = np.setdiff1d(user_serives, np.array([userdel]))
-
     return len(user_serives_sub_userdel) == 0
 
 
@@ -311,9 +307,7 @@ def find_redundant_slaves_for_user(pplan, user, G):
 
 
 def is_slave_redundant(pplan, user, server, G):
+    master_users = pplan.find_masters_in_partition(server)
     neighbors = G.get_neighbors(user)
-
-    for neighbor in neighbors:
-        if pplan.find_partition_having_master(neighbor) == server:
-            return False
-    return True
+    intersect = np.intersect1d(master_users, neighbors)
+    return len(intersect) == 0

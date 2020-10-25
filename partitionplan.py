@@ -11,19 +11,17 @@ class PartitionPlan:
     MASTER = 1
     SLAVE = 2
 
-    def __init__(self, n_partitions, user_capacity, partition_capacity):
+    def __init__(self, n_partitions=0, user_capacity=0, partition_capacity=0):
         self.logger = logging.getLogger('partitionplan.PartitionPlan')
         # Assumption: user_id determines the user's storage location
         # partition_id determines the partition's storage location
-        self.ucap = user_capacity
-        self.pcap = partition_capacity
         # user storage allocation
-        self.ualloc = np.zeros(self.ucap, dtype=np.bool)
+        self.ualloc = np.zeros(user_capacity, dtype=np.bool)
         # partition storage allocation
-        self.palloc = np.zeros(self.pcap, dtype=np.bool)
+        self.palloc = np.zeros(partition_capacity, dtype=np.bool)
         self.palloc[:n_partitions] = True
         # user partition assignment matrix, 0: none, 1: MASTER, 2: SLAVE
-        self.u2p = np.full((self.ucap, self.pcap), self.NOALLOC, dtype=np.int8)
+        self.u2p = np.full((user_capacity, partition_capacity), self.NOALLOC, dtype=np.int8)
 
     def save(self, folder):
         if not os.path.exists(folder):
@@ -44,15 +42,12 @@ class PartitionPlan:
             self.palloc = np.load(palloc_file)
             u2p_file = os.path.join(folder, 'u2p.npy')
             self.u2p = np.load(u2p_file)
-
-            self.ucap = len(self.ualloc)
-            self.pcap = len(self.palloc)
         except FileNotFoundError:
             self.logger.warning('File not found')
 
     def num_masters_per_partition(self):
         au2app = self.u2p[np.ix_(self.ualloc, self.palloc)] == self.MASTER
-        return np.sum(au2app, axis=0, dtype=np.int64)
+        return np.count_nonzero(au2app, axis=0)
 
     def partition_least_masters(self):
         master_count = self.num_masters_per_partition()
@@ -145,9 +140,13 @@ class PartitionPlan:
             self.logger.debug('Assign a new slave as n_slaves < {0}'.format(k))
             self.u2p[user_id, from_pid] = self.SLAVE
 
-    def find_master_in_partition(self, partition_id):
+    def find_masters_in_partition(self, partition_id):
         assert self.palloc[partition_id]
         return np.flatnonzero(self.u2p[:, partition_id] == self.MASTER)
+
+    def find_slaves_in_partition(self, partition_id):
+        assert self.palloc[partition_id]
+        return np.flatnonzero(self.u2p[:, partition_id] == self.SLAVE)
 
     def num_slaves_by_user(self, user_id):
         return np.count_nonzero(self.u2p[user_id] == self.SLAVE)
