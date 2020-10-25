@@ -5,11 +5,11 @@ import re
 import matplotlib.pyplot as plt
 
 # %%
-FOLDERS = ['facebook_new_4', 'facebook_new_16', 'facebook_new_64', 'facebook_new_256', 'facebook_random_4', 'facebook_random_16', 'facebook_random_64', 'facebook_random_256']
+FOLDERS = ['facebook_new_4', 'facebook_new_16', 'facebook_new_64', 'facebook_new_256', 'facebook_new_512', 'facebook_random_4', 'facebook_random_16', 'facebook_random_64', 'facebook_random_256', 'facebook_random_512']
 
 # FOLDERS = ['facebook_4', 'facebook_random_4']
 
-LABELS = ['4', '16', '64', '256']
+LABELS = ['4', '16', '64', '256', '512']
 
 n_replicas_list = []
 avg_n_slave_replicas_per_user_list = []
