@@ -18,7 +18,7 @@ action = [
 pp = PartitionPlan(4, 21, 4)
 
 pp.partition_ids()
-G1 = snap.TNGraph.New()
+G1 = snap.TUNGraph.New()
 G = Graph(G1)
 
 
@@ -33,5 +33,4 @@ for i in range(len(action)-1):
         pp = spar.add_node(pp, node2)
         G.add_node(node2)
     G.add_edge(node1, node2)
-    G.add_edge(node2, node1)
-    pp = spar.add_edge(pp, node1, node2, G,undirected=True)
+    pp = spar.add_edge(pp, node1, node2, G)
