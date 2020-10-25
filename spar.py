@@ -172,6 +172,7 @@ def rm_server(pplan, serverldel, G):
                 pplan.move_master_to_partition(index, id, k=K)
                 for neighbor in user_neighbors:
                     pplan.partition_add_slave(index, neighbor)
+                    remove_redundant_slaves_for_user(pplan, neighbor, G)
                 break
 
 
