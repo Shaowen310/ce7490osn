@@ -208,11 +208,11 @@ def no_movement_of_master(pplan, user1, user2, G):
 
     if u1_master_server not in u2_slave_server:
         pptmp.partition_add_slave(u1_master_server, user2)
-        maintain_K(pptmp, user2, G)
+        remove_redundant_slaves_for_user(pptmp, user2, G)
 
     if u2_master_server not in u1_slave_server:
         pptmp.partition_add_slave(u2_master_server, user1)
-        maintain_K(pptmp, user1, G)
+        remove_redundant_slaves_for_user(pptmp, user1, G)
 
     return pptmp
 
@@ -234,11 +234,11 @@ def move_master(pplan, user1, user2, G):
     for neighbor in user1_neighbors:
         if not have_created and pptmp.find_partition_having_master(neighbor) == u1_master_server:
             pptmp.partition_add_slave(u1_master_server, user1)  # create user1 slave on user1 old mater
-            maintain_K(pptmp, user1, G)
+            remove_redundant_slaves_for_user(pptmp, user1, G)
             have_created = True
 
         pptmp.partition_add_slave(u2_master_server, neighbor)  # create new replica of user1 neighbors in new
-        maintain_K(pptmp, neighbor, G)
+        remove_redundant_slaves_for_user(pptmp, neighbor, G)
         # master if it is not ready in.
 
         if remove_slave_replica(pptmp, u1_master_server, neighbor, user1, G):
@@ -273,35 +273,47 @@ def remove_slave_replica(pplan, server, user, userdel, G):
 
     user_serives_sub_userdel = np.setdiff1d(user_serives, np.array([userdel]))
 
-    if len(user_serives_sub_userdel) == 0:
-        return True
-    else:
-        return False
+    return len(user_serives_sub_userdel) == 0
 
 
-def maintain_K(pplan, user, G):
-    num_slave_replicas = pplan.num_slaves_by_user(user)
-    if num_slave_replicas <= K:
-        return
+def remove_redundant_slaves_for_user(pplan, user, G, k=K):
     user_slave_servers = pplan.find_partition_having_slave(user)
-    user_neighbors = G.get_neighbors(user)
-    used = []
+    n_slave_replicas = len(user_slave_servers)
 
+    if n_slave_replicas <= k:
+        return
+
+    user_neighbors = G.get_neighbors(user)
+    neighbor_master_servers = []
     for neighbor in user_neighbors:
         neighbor_master_server = pplan.find_partition_having_master(neighbor)
-        used.append(neighbor_master_server)
+        neighbor_master_servers.append(neighbor_master_server)
+    neighbor_master_servers = np.unique(np.array(neighbor_master_servers))
 
-    used = np.array(used)
-    used = np.unique(used)
+    slave_removal_condidates = np.setdiff1d(user_slave_servers, neighbor_master_servers)
 
-    diff = np.setdiff1d(user_slave_servers, used)
+    n_slaves_to_remove = min(n_slave_replicas - k, len(slave_removal_condidates))
+    if n_slaves_to_remove > 0:
+        slaves_to_remove = slave_removal_condidates[:n_slaves_to_remove]
+        for slave in slaves_to_remove:
+            pplan.partition_remove_slave(slave, user)
 
-    for d in diff:
-        pplan.partition_remove_slave(d, user, k=K)
-        num_slave_replicas = num_slave_replicas - 1
-        if num_slave_replicas <= K:
-            num_slave = pplan.num_slaves_by_user(user)
-            if num_slave > K:
-                print('error')
-                exit()
-            return
+
+def find_redundant_slaves_for_user(pplan, user, G):
+    user_slave_servers = pplan.find_partition_having_slave(user)
+    user_neighbors = G.get_neighbors(user)
+    neighbor_master_servers = []
+    for neighbor in user_neighbors:
+        neighbor_master_server = pplan.find_partition_having_master(neighbor)
+        neighbor_master_servers.append(neighbor_master_server)
+    neighbor_master_servers = np.unique(np.array(neighbor_master_servers))
+    return np.setdiff1d(user_slave_servers, neighbor_master_servers)
+
+
+def is_slave_redundant(pplan, user, server, G):
+    neighbors = G.get_neighbors(user)
+
+    for neighbor in neighbors:
+        if pplan.find_partition_having_master(neighbor) == server:
+            return False
+    return True

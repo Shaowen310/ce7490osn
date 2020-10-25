@@ -98,14 +98,14 @@ class PartitionPlan:
     def _partition_remove_replica(self, partition_id, user_id):
         self.u2p[user_id, partition_id] = self.NOALLOC
 
-    def partition_remove_slave(self, partition_id, user_id, k=2):
+    def partition_remove_slave(self, partition_id, user_id, k=0):
         assert self.palloc[partition_id]
         if self.u2p[user_id, partition_id] != self.SLAVE:
             self.logger.info(
                 'Remove slave ignored as user {0} partition {1} is not slave'.
                 format(user_id, partition_id))
             return
-        if self.num_slaves_by_user(user_id) <= k:
+        if k > 0 and self.num_slaves_by_user(user_id) <= k:
             self.logger.debug(
                 'Remove slave ignored as at least {0} slave should be kept'.
                 format(k))
@@ -136,12 +136,12 @@ class PartitionPlan:
     def find_partition_having_slave(self, user_id):
         return np.flatnonzero(self.u2p[user_id] == self.SLAVE)
 
-    def move_master_to_partition(self, to_partition_id, user_id, k=2):
+    def move_master_to_partition(self, to_partition_id, user_id, k=0):
         assert self.palloc[to_partition_id]
         from_pid = self.find_partition_having_master(user_id)
         self._partition_remove_replica(from_pid, user_id)
         self.u2p[user_id, to_partition_id] = self.MASTER
-        if self.num_slaves_by_user(user_id) < k:
+        if k > 0 and self.num_slaves_by_user(user_id) < k:
             self.logger.debug('Assign a new slave as n_slaves < {0}'.format(k))
             self.u2p[user_id, from_pid] = self.SLAVE
 
