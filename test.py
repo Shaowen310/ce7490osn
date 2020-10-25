@@ -49,16 +49,15 @@ def random_action(file_name):
 
 
 # if load pplan, you need also load the graph, call this function when you call pp.load(*args)
-def load_graph(graph: Graph, action_file, undirected=False):
+def load_graph(graph: Graph, action_file):
     for (n1, n2) in generate_action(action_file):
         graph.add_node(n1)
         graph.add_node(n2)
         graph.add_edge(n1, n2)
-        if undirected:
-            graph.add_edge(n2, n1)
+        graph.add_edge(n2, n1)
 
 
-def partition(save, file, undirected=True):
+def partition(save, file):
     global pp
     for (node1, node2) in generate_action(file):
         if not pp.contains_user(node1):
@@ -68,17 +67,16 @@ def partition(save, file, undirected=True):
             pp = spar.add_node(pp, node2)
             G.add_node(node2)
         G.add_edge(node1, node2)
-        if undirected:
-            G.add_edge(node2, node1)
-        pp = spar.add_edge(pp, node1, node2, G, undirected)
+        G.add_edge(node2, node1)
+        pp = spar.add_edge(pp, node1, node2, G)
 
     pp.save(save)
 
 
-def load(load_name, file, undirected=True):
+def load(load_name, file):
     global pp
     pp.load(load_name)
-    load_graph(G, file, undirected=undirected)
+    load_graph(G, file)
 
 
 def preprocess_twitter(file_name):
@@ -122,7 +120,7 @@ if __name__ == '__main__':
         pp.partition_ids()
         G1 = snap.TNGraph.New()
         G = Graph(G1)
-        partition('./test_server1' + str(server_num),'./data/snap/facebook/facebook_combined/facebook_combined_rand.txt', undirected=True)
+        partition('./test_server1' + str(server_num),'./data/snap/facebook/facebook_combined/facebook_combined_rand.txt')
     # load('./test_server' + str(512))
-    # partitaion('./test_serverface512_2', './data/snap/facebook/facebook_combined/facebook_combined_rand.txt', undirected=False)
+    # partitaion('./test_serverface512_2', './data/snap/facebook/facebook_combined/facebook_combined_rand.txt')
     # print(pp.u2p)
