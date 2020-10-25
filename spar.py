@@ -18,7 +18,7 @@ def add_node(pplan, user):
     return pplan
 
 
-def add_edge(pplan, user1, user2, G, undirected):
+def add_edge(pplan, user1, user2, G):
     u1_master_server = pplan.find_partition_having_master(user1)
     u2_master_server = pplan.find_partition_having_master(user2)
     u1_slave_servers = pplan.find_partition_having_slave(user1)
@@ -184,8 +184,6 @@ def no_movement_of_master(pplan, user1, user2):
 
 def move_master(pplan, user1, user2, G):
     pptmp = copy.deepcopy(pplan)
-    # print("*********************************")
-    # print(user1,user2)
 
     u1_master_server = pptmp.find_partition_having_master(user1)
     u2_master_server = pptmp.find_partition_having_master(user2)
@@ -208,11 +206,6 @@ def move_master(pplan, user1, user2, G):
 
         if remove_slave_replica(pptmp, u1_master_server, neighbor, user1, G):
             pptmp.partition_remove_slave(u1_master_server, neighbor)
-
-    # print(pplan.u2p)
-    # print(pplan_tmp.u2p)
-    #
-    # print("*****************************************")
 
     return pptmp
 
