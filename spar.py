@@ -27,7 +27,7 @@ def add_edge(pplan, user1, user2, G):
     if u1_master_server == u2_master_server:
         return pplan
 
-    if (u1_master_server in u2_slave_servers) or (u2_master_server in u1_slave_servers):
+    if (u1_master_server in u2_slave_servers) and (u2_master_server in u1_slave_servers):
         return pplan
 
     scores = []
@@ -35,7 +35,7 @@ def add_edge(pplan, user1, user2, G):
     strategies = []
     s_name = []
 
-    pp_nomove = no_movement_of_master(pplan, user1, user2)
+    pp_nomove = no_movement_of_master(pplan, user1, user2, G)
     scores.append(evaluate(pp_nomove))
     ratios.append(imbalance_ratio(pp_nomove))
     strategies.append(pp_nomove)
@@ -170,14 +170,21 @@ def rm_edge(pplan, user1, user2, G):
     return pplan
 
 
-def no_movement_of_master(pplan, user1, user2):
+def no_movement_of_master(pplan, user1, user2, G):
     pptmp = copy.deepcopy(pplan)
 
     u1_master_server = pptmp.find_partition_having_master(user1)
     u2_master_server = pptmp.find_partition_having_master(user2)
+    u1_slave_server = pptmp.find_partition_having_slave(user1)
+    u2_slave_server = pptmp.find_partition_having_slave(user2)
 
-    pptmp.partition_add_slave(u1_master_server, user2)
-    pptmp.partition_add_slave(u2_master_server, user1)
+    if u1_master_server not in u2_slave_server:
+        pptmp.partition_add_slave(u1_master_server, user2)
+        maintain_K(pptmp, user2, G)
+
+    if u2_master_server not in u1_slave_server:
+        pptmp.partition_add_slave(u2_master_server, user1)
+        maintain_K(pptmp, user1, G)
 
     return pptmp
 
@@ -199,9 +206,11 @@ def move_master(pplan, user1, user2, G):
     for neighbor in user1_neighbors:
         if not have_created and pptmp.find_partition_having_master(neighbor) == u1_master_server:
             pptmp.partition_add_slave(u1_master_server, user1)  # create user1 slave on user1 old mater
+            maintain_K(pptmp, user1, G)
             have_created = True
 
         pptmp.partition_add_slave(u2_master_server, neighbor)  # create new replica of user1 neighbors in new
+        maintain_K(pptmp, neighbor, G)
         # master if it is not ready in.
 
         if remove_slave_replica(pptmp, u1_master_server, neighbor, user1, G):
@@ -240,3 +249,31 @@ def remove_slave_replica(pplan, server, user, userdel, G):
         return True
     else:
         return False
+
+
+def maintain_K(pplan, user, G):
+    num_slave_replicas = pplan.num_slaves_by_user(user)
+    if num_slave_replicas <= K:
+        return
+    user_slave_servers = pplan.find_partition_having_slave(user)
+    user_neighbors = G.get_neighbors(user)
+    used = []
+
+    for neighbor in user_neighbors:
+        neighbor_master_server = pplan.find_partition_having_master(neighbor)
+        used.append(neighbor_master_server)
+
+    used = np.array(used)
+    used = np.unique(used)
+
+    diff = np.setdiff1d(user_slave_servers, used)
+
+    for d in diff:
+        pplan.partition_remove_slave(d, user, k=K)
+        num_slave_replicas = num_slave_replicas - 1
+        if num_slave_replicas <= K:
+            num_slave = pplan.num_slaves_by_user(user)
+            if num_slave > K:
+                print('error')
+                exit()
+            return
