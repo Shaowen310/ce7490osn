@@ -296,7 +296,7 @@ def remove_redundant_slaves_for_user(pplan, user, G, k=K):
     if n_slaves_to_remove > 0:
         slaves_to_remove = slave_removal_condidates[:n_slaves_to_remove]
         for slave in slaves_to_remove:
-            pplan.partition_remove_slave(slave, user)
+            pplan.partition_remove_slave(slave, user, k=0)
 
 
 def find_redundant_slaves_for_user(pplan, user, G):
