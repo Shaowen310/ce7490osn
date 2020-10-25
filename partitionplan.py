@@ -142,7 +142,7 @@ class PartitionPlan:
         self._partition_remove_replica(from_pid, user_id)
         self.u2p[user_id, to_partition_id] = self.MASTER
         if self.num_slaves_by_user(user_id) < k:
-            self.logger.debug('Assign a new slave as n_slaves < {0}', k)
+            self.logger.debug('Assign a new slave as n_slaves < {0}'.format(k))
             self.u2p[user_id, from_pid] = self.SLAVE
 
     def find_master_in_partition(self, partition_id):
