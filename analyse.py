@@ -5,7 +5,7 @@ from partitionplan import PartitionPlan
 # %%
 
 # %%
-FOLDER = 'test_server7256'
+FOLDER = 'facebook_4'
 
 
 palloc = np.load(FOLDER + '/palloc.npy')
