@@ -61,7 +61,19 @@ def load_graph(graph: Graph, action_file):
 
 def partition(save, file):
     global pp
+
+    con = {}
     for (node1, node2) in generate_action(file):
+
+        if node1 not in con.keys():
+            con[node1] = 1
+        else:
+            con[node1] += 1
+        if node2 not in con.keys():
+            con[node2] = 1
+        else:
+            con[node2] += 1
+
         if not pp.contains_user(node1):
             pp = spar.add_node(pp, node1)
             G.add_node(node1)
@@ -72,6 +84,10 @@ def partition(save, file):
         pp = spar.add_edge(pp, node1, node2, G)
 
     pp.save(save)
+    c = 0
+    for i in con.keys():
+        c += con[i]
+    print(len(con.keys()), c / (len(con.keys())))
 
 
 def load(load_name, file):
@@ -122,15 +138,15 @@ if __name__ == '__main__':
 
     # random_action('./data/snap/lasftm_asia/lastfm_asia.txt')
 
-    num = int(sys.argv[1])
-
+    # num = int(sys.argv[1])
+    num = 1
     for server_num in [num]:
         pp = PartitionPlan(server_num, 5000, server_num)
 
         pp.partition_ids()
         G1 = snap.TUNGraph.New()
         G = Graph(G1)
-        partition('./facebook_new_K0_' + str(server_num), './data/snap/facebook/facebook_combined/facebook_combined_rand.txt')
+        partition('./facebook_new_K0_' + str(server_num), './data/snap/lasftm_asia/lastfm_asia_rand.txt')
     # load('./test_server' + str(512))
     # partitaion('./test_serverface512_2', './data/snap/facebook/facebook_combined/facebook_combined_rand.txt')
     # print(pp.u2p)
