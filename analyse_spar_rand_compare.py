@@ -5,9 +5,13 @@ import re
 import matplotlib.pyplot as plt
 
 # %%
-FOLDERS = ['facebook_new_4', 'facebook_new_8', 'facebook_new_16', 'facebook_new_64','facebook_new_128', 'facebook_new_256', 'facebook_new_512', 'facebook_random_4','facebook_random_8', 'facebook_random_16', 'facebook_random_64',  'facebook_random_128', 'facebook_random_256', 'facebook_random_512']
+# FOLDERS = ['facebook_new_4', 'facebook_new_8', 'facebook_new_16', 'facebook_new_64','facebook_new_128', 'facebook_new_256', 'facebook_new_512', 'facebook_random_4','facebook_random_8', 'facebook_random_16', 'facebook_random_64',  'facebook_random_128', 'facebook_random_256', 'facebook_random_512']
 
 # FOLDERS = ['lastfm_new_4', 'lastfm_new_8', 'lastfm_new_16', 'lastfm_new_64','lastfm_new_128', 'lastfm_new_256', 'lastfm_new_512', 'lastfm_random_4','lastfm_random_8', 'lastfm_random_16', 'lastfm_random_64',  'lastfm_random_128', 'lastfm_random_256', 'lastfm_random_512']
+
+# FOLDERS = ['facebook_new_K0_4', 'facebook_new_K0_8', 'facebook_new_K0_16', 'facebook_new_K0_64','facebook_new_K0_128', 'facebook_new_K0_256', 'facebook_new_K0_512', 'facebook_random_K0_4','facebook_random_K0_8', 'facebook_random_K0_16', 'facebook_random_K0_64',  'facebook_random_K0_128', 'facebook_random_K0_256', 'facebook_random_K0_512']
+
+FOLDERS = ['lastfm_new_K0_4', 'lastfm_new_K0_8', 'lastfm_new_K0_16', 'lastfm_new_K0_64','lastfm_new_K0_128', 'lastfm_new_K0_256', 'lastfm_new_K0_512', 'lastfm_random_K0_4','lastfm_random_K0_8', 'lastfm_random_K0_16', 'lastfm_random_K0_64',  'lastfm_random_K0_128', 'lastfm_random_K0_256', 'lastfm_random_K0_512']
 
 LABELS = ['4', '8', '16', '32', '64', '256', '512']
 
