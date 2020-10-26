@@ -10,7 +10,7 @@ rx_replica_create = r'(replica create )(\d+)'
 
 # %%
 FOLDER = 'lastfm_new_4'
-TEXT = 'facebook4.txt'
+TEXT = 'facebook_new512.txt'
 
 
 palloc = np.load(FOLDER + '/palloc.npy')
@@ -28,19 +28,6 @@ print('avg_num_slave_replicas_per_user: ', n_replicas/np.count_nonzero(ualloc)-1
 # %%
 n_masters_per_server = pp.num_masters_per_partition()
 print('num_masters_per_server:', n_masters_per_server)
-
-# %%
-# fig = plt.figure()
-# plt.hist(n_masters_per_server)
-
-# %%
-im_n_masters_per_server = np.expand_dims(n_masters_per_server, axis=0)
-
-fig, ax = plt.subplots()
-ax.imshow(im_n_masters_per_server, cmap="plasma", interpolation=None, aspect='auto')
-ax.set_ylim((-1,1))
-# plt.colorbar(orientation="horizontal")
-plt.show()
 
 # %%
 replica_create = []
