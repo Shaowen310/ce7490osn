@@ -11,9 +11,7 @@ rx_replica_create = r'(replica create )(\d+)'
 # %%
 
 FOLDER = 'lastfm_new_K0_4'
-TEXT = 'facebook4.txt'
-
-
+TEXT = 'facebook_new512.txt'
 
 palloc = np.load(FOLDER + '/palloc.npy')
 ualloc = np.load(FOLDER + '/ualloc.npy')

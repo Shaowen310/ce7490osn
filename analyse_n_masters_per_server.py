@@ -5,16 +5,16 @@ import re
 import matplotlib.pyplot as plt
 
 # %%
-FOLDERS = ['facebook_new_4', 'facebook_new_16', 'facebook_new_64', 'facebook_new_256']
-<<<<<<< HEAD
-=======
-FOLDERS = ['facebook_new_8', 'facebook_new_32', 'facebook_new_128', 'facebook_new_512']
+# FOLDERS = ['facebook_new_4', 'facebook_new_16', 'facebook_new_64', 'facebook_new_256']
+# FOLDERS = ['facebook_new_8', 'facebook_new_32', 'facebook_new_128', 'facebook_new_512']
 # FOLDERS = ['facebook_new_4','facebook_new_8','facebook_new_16', 'facebook_new_32','facebook_new_64', 'facebook_new_128','facebook_new_256', 'facebook_new_512']
 # FOLDERS = ['facebook_new_4', 'facebook_new_8', 'facebook_new_16', 'facebook_new_32']
 # FOLDERS = ['facebook_new_64', 'facebook_new_128', 'facebook_new_256', 'facebook_new_512']
+# FOLDERS = ['facebook_new_K0_8', 'facebook_new_K0_32', 'facebook_new_K0_128', 'facebook_new_K0_512']
+# FOLDERS = ['facebook_rmedge50_8', 'facebook_rmedge50_32', 'facebook_rmedge50_128', 'facebook_rmedge50_512']
+FOLDERS = ['facebook_rmedge50_K0_8', 'facebook_rmedge50_K0_32', 'facebook_rmedge50_K0_128', 'facebook_rmedge50_K0_512']
 
 LABELS = ['8','32','128','512']
->>>>>>> 83587e4c9ba6297900b136e07861be19f2fe0cda
 
 n_replicas_list = []
 avg_n_slave_replicas_per_user_list = []
