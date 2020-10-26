@@ -107,28 +107,37 @@ def preprocess_twitter(file_name):
         file.write(save)
 
 
+def remove(file):
+    global pp
+    user_num = pp.num_users()
+    replica_num = pp.num_replicas()
+
+    print(user_num)
+    print(replica_num)
+    actions = generate_action(file)
+
+    edge_num = len(actions)
+
+    print(edge_num)
+
+    for (node1, node2) in actions:
+        G.remove_edge(node1, node2)
+        pp = spar.rm_edge(pp, node1, node2, G)
+        print(pp.num_users())
+        print(pp.num_replicas())
+
+
 if __name__ == '__main__':
 
-    # print(sys.argv)
-    # print(sys.argv)
-
-    # pp = PartitionPlan(512, 5000, 512)
-    #
-    # pp.partition_ids()
-    # G1 = snap.TNGraph.New()
-    # G = Graph(G1)
-
-    # preprocess_twitter('./data/snap/twitter/twitter_combined.txt')
-
-    num = int(sys.argv[1])
-
+    # num = int(sys.argv[1])
+    num = 256
     for server_num in [num]:
-        pp = PartitionPlan(server_num, 85000, server_num)
+        pp = PartitionPlan(server_num, 5000, server_num)
 
         pp.partition_ids()
         G1 = snap.TUNGraph.New()
         G = Graph(G1)
-        partition('./twitter_new_' + str(server_num), './data/snap/twitter/twitter_combined_rand.txt')
-    # load('./test_server' + str(512))
-    # partitaion('./test_serverface512_2', './data/snap/facebook/facebook_combined/facebook_combined_rand.txt')
-    # print(pp.u2p)
+        # partition('./twitter_new_' + str(server_num), './data/snap/twitter/twitter_combined_rand.txt')
+        load('./facebook_new_' + str(server_num), './data/snap/facebook/facebook_combined/facebook_combined_rand.txt')
+        remove('./data/snap/facebook/facebook_combined/facebook_combined_rand.txt')
+        print()

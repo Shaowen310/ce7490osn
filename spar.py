@@ -191,8 +191,8 @@ def rm_node(pplan, user, G):
 
 
 def rm_edge(pplan, user1, user2, G):
-    user1_master_server = pplan.find_master_server(user1)  # is a number
-    user2_master_server = pplan.find_master_server(user2)
+    user1_master_server = pplan.find_partition_having_master(user1)  # is a number
+    user2_master_server = pplan.find_partition_having_master(user2)
 
     if remove_slave_replica(pplan, user1_master_server, user2, user1, G):
         pplan.partition_remove_slave(user1_master_server, user2, k=K)
