@@ -5,7 +5,7 @@ import re
 import matplotlib.pyplot as plt
 
 # %%
-FOLDERS = ['facebook_4', 'facebook_16', 'facebook_64', 'facebook_256']
+FOLDERS = ['facebook_new_4', 'facebook_new_16', 'facebook_new_64', 'facebook_new_256']
 
 n_replicas_list = []
 avg_n_slave_replicas_per_user_list = []

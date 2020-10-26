@@ -130,42 +130,7 @@ def remove_edge(file):
         k = k - 1
 
         if k == int(edge_num * 0.5):
-            pp.save('facebook_rmedge50_' + str(k_num))
-
-
-def remove_node(file):
-    global pp
-    user_num = pp.num_users()
-    replica_num = pp.num_replicas()
-    #
-    # print(user_num)
-    # print(replica_num)
-    actions = generate_action(file)
-    #
-    # edge_num = len(actions)
-
-    # print(edge_num)
-
-    k = user_num
-    save = False
-
-    for (node1, node2) in actions:
-
-        if G.g.IsNode(node1):
-            pp = spar.rm_node(pp, node1, G)
-            G.remove_node(node1)
-            k = k - 1
-
-        if G.g.IsNode(node2):
-            pp = spar.rm_node(pp, node2, G)
-            G.remove_node(node2)
-            k = k - 1
-
-        print(pp.num_users(), pp.num_replicas())
-
-        if k <= int(user_num * 0.5) and not save:
-            pp.save('facebook_rmnode50_' + str(k_num))
-            save = True
+            pp.save('facebook_rmedge50_K0_' + str(k_num))
 
 
 if __name__ == '__main__':
@@ -179,5 +144,6 @@ if __name__ == '__main__':
         G1 = snap.TUNGraph.New()
         G = Graph(G1)
         # partition('./twitter_new_' + str(server_num), './data/snap/twitter/twitter_combined_rand.txt')
-        load('./facebook_new_' + str(server_num), './data/snap/facebook/facebook_combined/facebook_combined_rand.txt')
-        remove_node('./data/snap/facebook/facebook_combined/facebook_combined_rand.txt')
+        load('./facebook_new_K0_' + str(server_num),
+             './data/snap/facebook/facebook_combined/facebook_combined_rand.txt')
+        remove_edge('./data/snap/facebook/facebook_combined/facebook_combined_rand.txt')

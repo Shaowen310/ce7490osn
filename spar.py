@@ -5,7 +5,7 @@ from numpy.random import default_rng
 RNG = default_rng(0)
 
 # redundancy
-K = 2
+K = 0
 
 
 def add_node(pplan, user):
