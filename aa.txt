@@ -1,3 +1,0 @@
-['test.py', '--a']
-['test.py', '--a']
-['test.py', '--a']
