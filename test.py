@@ -120,15 +120,17 @@ if __name__ == '__main__':
 
     # preprocess_twitter('./data/snap/twitter/twitter_combined.txt')
 
+    # random_action('./data/snap/lasftm_asia/lastfm_asia.txt')
+
     num = int(sys.argv[1])
 
     for server_num in [num]:
-        pp = PartitionPlan(server_num, 85000, server_num)
+        pp = PartitionPlan(server_num, 7700, server_num)
 
         pp.partition_ids()
         G1 = snap.TUNGraph.New()
         G = Graph(G1)
-        partition('./twitter_new_' + str(server_num), './data/snap/twitter/twitter_combined_rand.txt')
+        partition('./lastfm_new_' + str(server_num), './data/snap/lasftm_asia/lastfm_asia_rand.txt')
     # load('./test_server' + str(512))
     # partitaion('./test_serverface512_2', './data/snap/facebook/facebook_combined/facebook_combined_rand.txt')
     # print(pp.u2p)

@@ -107,31 +107,72 @@ def preprocess_twitter(file_name):
         file.write(save)
 
 
-def remove(file):
+def remove_edge(file):
     global pp
     user_num = pp.num_users()
     replica_num = pp.num_replicas()
-
-    print(user_num)
-    print(replica_num)
+    #
+    # print(user_num)
+    # print(replica_num)
     actions = generate_action(file)
 
     edge_num = len(actions)
 
-    print(edge_num)
+    # print(edge_num)
+
+    k = edge_num
 
     for (node1, node2) in actions:
         G.remove_edge(node1, node2)
         pp = spar.rm_edge(pp, node1, node2, G)
-        print(pp.num_users())
+        # print(pp.num_users())
         print(pp.num_replicas())
+        k = k - 1
+
+        if k == int(edge_num * 0.5):
+            pp.save('facebook_rmedge50_' + str(k_num))
+
+
+def remove_node(file):
+    global pp
+    user_num = pp.num_users()
+    replica_num = pp.num_replicas()
+    #
+    # print(user_num)
+    # print(replica_num)
+    actions = generate_action(file)
+    #
+    # edge_num = len(actions)
+
+    # print(edge_num)
+
+    k = user_num
+    save = False
+
+    for (node1, node2) in actions:
+
+        if G.g.IsNode(node1):
+            pp = spar.rm_node(pp, node1, G)
+            G.remove_node(node1)
+            k = k - 1
+
+        if G.g.IsNode(node2):
+            pp = spar.rm_node(pp, node2, G)
+            G.remove_node(node2)
+            k = k - 1
+
+        print(pp.num_users(), pp.num_replicas())
+
+        if k <= int(user_num * 0.5) and not save:
+            pp.save('facebook_rmnode50_' + str(k_num))
+            save = True
 
 
 if __name__ == '__main__':
 
-    # num = int(sys.argv[1])
-    num = 256
-    for server_num in [num]:
+    k_num = int(sys.argv[1])
+    # num = 256
+    for server_num in [k_num]:
         pp = PartitionPlan(server_num, 5000, server_num)
 
         pp.partition_ids()
@@ -139,5 +180,4 @@ if __name__ == '__main__':
         G = Graph(G1)
         # partition('./twitter_new_' + str(server_num), './data/snap/twitter/twitter_combined_rand.txt')
         load('./facebook_new_' + str(server_num), './data/snap/facebook/facebook_combined/facebook_combined_rand.txt')
-        remove('./data/snap/facebook/facebook_combined/facebook_combined_rand.txt')
-        print()
+        remove_node('./data/snap/facebook/facebook_combined/facebook_combined_rand.txt')

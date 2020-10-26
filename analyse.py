@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 rx_replica_create = r'(replica create )(\d+)'
 
 # %%
-FOLDER = 'facebook_random_256'
+FOLDER = 'lastfm_new_4'
 TEXT = 'facebook4.txt'
 
 

@@ -20,10 +20,9 @@ class Graph:
         try:
             for i in self.get_neighbors(user_id):
                 self.remove_edge(user_id, i)
-                self.remove_edge(i, user_id)
         except Exception:
-            print('remove error')
-        if not self.g.IsNode(user_id):
+            pass
+        if self.g.IsNode(user_id):
             self.g.DelNode(user_id)
 
     def remove_edge(self, user_id1, user_id2):
