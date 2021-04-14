@@ -1,8 +1,3 @@
-# ce7490osn
+# CE7490 Project 1: Online Social Network (OSN)
 
-## Notations
-
-| Notation | Definition  |
-| -------- | ----------- |
-| K        | Redundancy. |
-
+Implementation of "The Little Engine(s) That Could: Scaling Online Social Networks".
